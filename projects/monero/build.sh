@@ -1,4 +1,7 @@
 #!/bin/bash -eu
+CFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all -fuse-ld=lld"
+CXXFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all  -stdlib=libc++ -fuse-ld=lld"
+#!/bin/bash -eu
 # Copyright 2020 The Monero Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +21,9 @@
 export BOOST_ROOT=/src/monero/boost_1_70_0
 export OPENSSL_ROOT_DIR=/src/monero/openssl-1.1.1g
 
+CFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all -fuse-ld=lld"
+CXXFLAGS="-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all  -stdlib=libc++ -fuse-ld=lld"
+
 cd monero
 sed -i -e 's/include(FindCcache)/# include(FindCcache)/' CMakeLists.txt
 git submodule init
@@ -25,6 +31,7 @@ git submodule update
 mkdir -p build
 cd build
 export CXXFLAGS="$CXXFLAGS -fPIC"
+
 cmake -D OSSFUZZ=ON -D STATIC=ON -D BUILD_TESTS=ON -D USE_LTO=OFF -D ARCH="default" ..
 
 TESTS="\

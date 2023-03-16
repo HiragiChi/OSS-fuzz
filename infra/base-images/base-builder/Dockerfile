@@ -57,7 +57,7 @@ RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v$BAZELISK_
     chmod +x /usr/local/bin/bazel
 
 # Default build flags for various sanitizers.
-ENV SANITIZER_FLAGS_address "-fsanitize=address -fsanitize-address-use-after-scope"
+ENV SANITIZER_FLAGS_address "-fsanitize=cfi"
 ENV SANITIZER_FLAGS_hwaddress "-fsanitize=hwaddress -fuse-ld=lld -Wno-unused-command-line-argument"
 
 # Set of '-fsanitize' flags matches '-fno-sanitize-recover' + 'unsigned-integer-overflow'.

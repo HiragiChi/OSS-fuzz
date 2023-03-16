@@ -1,0 +1,113 @@
+../../src/glib/gobject/gtype.c:2284:7: runtime error: control flow integrity check for type 'void (void *)' failed during indirect function call
+/work/meson/../../src/glib/gobject/gparam.c:150: note: g_param_spec_class_base_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:2284:7 in 
+#g_param_spec_class_base_init (GParamSpecClass *class) struct* :   nothing in the body
+
+
+1../../src/glib/gobject/gtype.c:2351:5: runtime error: control flow integrity check for type 'void (void *, void *)' failed during indirect function call
+/work/meson/../../src/glib/gobject/gparam.c:161: note: g_param_spec_class_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:2351:5 in 
+same as the previous one
+
+2../../src/glib/gobject/gboxed.c:142:1: runtime error: control flow integrity check for type 'unsigned long (const char *, union (unnamed at ../../src/glib/gobject/gboxed.c:142:1), union (unnamed at ../../src/glib/gobject/gboxed.c:142:1))' failed during indirect function call
+/work/meson/../../src/glib/gobject/gboxed.c:302: note: g_boxed_type_register_static defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gboxed.c:142:1 in 
+#static GType g_value_array_get_type_once (void) { GType (* _g_register_boxed) (const gchar *, union { GValueArray * (*do_copy_type) (GValueArray *); GValueArray * (*do_const_copy_type) (const GValueArray *); GBoxedCopyFunc do_copy_boxed; } __attribute__((__transparent_union__)), union { void (* do_free_type) (GValueArray *); GBoxedFreeFunc do_free_boxed; } __attribute__((__transparent_union__)) ) = g_boxed_type_register_static;
+g_boxed_type_register_static (const gchar   *name,
+			      GBoxedCopyFunc boxed_copy,
+			      GBoxedFreeFunc boxed_free)
+{
+cannot tolerate union type
+
+
+1../../src/glib/gobject/gtype.c:2092:13: runtime error: control flow integrity check for type 'void (void *, void *)' failed during indirect function call
+/work/meson/../../src/glib/gio/gseekable.c:55: note: g_seekable_default_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:2092:13 in 
+
+# static void
+g_seekable_default_init (GSeekableInterface *iface)
+{
+}
+nothing in the body.
+
+3 ../../src/glib/gobject/gtype.c:1977:4: runtime error: control flow integrity check for type 'void (struct _GTypeInstance *, void *)' failed during indirect function call
+/work/meson/../../src/glib/gobject/gparam.c:174: note: g_param_spec_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:1977:4 in 
+
+static void
+g_param_spec_init (GParamSpec      *pspec,
+		   GParamSpecClass *class)
+{
+  pspec->name = NULL;
+  pspec->_nick = NULL;
+  pspec->_blurb = NULL;
+  pspec->flags = 0;
+  pspec->value_type = class->value_type;
+  pspec->owner_type = 0;
+  pspec->qdata = NULL;
+  g_datalist_set_flags (&pspec->qdata, PARAM_FLOATING_FLAG);
+  pspec->ref_count = 1;
+  pspec->param_id = 0;
+}
+
+#struct _GTypeInstance
+{
+  /*< private >*/
+  GTypeClass *g_class;
+};
+struct _GParamSpec
+{
+  GTypeInstance  g_type_instance;
+
+  const gchar   *name;          /* interned string */
+  GParamFlags    flags;
+  GType		 value_type;
+  GType		 owner_type;	/* class or interface using this property */
+
+  /*< private >*/
+  gchar         *_nick;
+  gchar         *_blurb;
+  GData		*qdata;
+  guint          ref_count;
+  guint		 param_id;	/* sort-criteria */
+};
+downcasting, very dangerous, why it can run? the parameter passed is still
+    allocated = g_malloc0 (private_size + ivar_size);
+  instance = (GTypeInstance *) (allocated + private_size);
+  and instance is passed to the caller. gmalloc0 only allocate memory with some size, the real type for instance should be void* but with sufficient memory
+
+
+1../../src/glib/gobject/gtype.c:1983:5: runtime error: control flow integrity check for type 'void (struct _GTypeInstance *, void *)' failed during indirect function call
+ld-temp.o: note: param_pointer_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:1983:5 in 
+
+not sure case, but parameter number does not match , function do nothing
+static void
+param_pointer_init (GParamSpec *pspec)
+{
+  /* GParamSpecPointer *spec = G_PARAM_SPEC_POINTER (pspec); */
+}
+
+?../../src/glib/gobject/gtype.c:2179:2: runtime error: control flow integrity check for type 'void (void *, void *)' failed during indirect function call
+/work/meson/../../src/glib/gio/gmemoryoutputstream.c:317: note: g_memory_output_stream_seekable_iface_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/gobject/gtype.c:2179:2 in 
+#g_memory_output_stream_seekable_iface_init (GSeekableIface *iface)
+
+
+?../../src/glib/glib/gslist.c:887:7: runtime error: control flow integrity check for type 'void (void *, void *)' failed during indirect function call
+ld-temp.o: note: string_full_free defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/glib/gslist.c:887:7 in 
+string_full_free (gpointer ptr) not empty function with different parameter amounts. Is the version different???
+
+../../src/glib/glib/ghash.c:709:13: runtime error: control flow integrity check for type 'void (void *)' failed during indirect function call
+/work/meson/../../src/glib/gio/glib-compile-resources.c:83: note: file_data_free defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../../src/glib/glib/ghash.c:709:13 in 
+void* to struct*
+static void
+file_data_free (FileData *data)
+{
+  g_free (data->filename);
+  g_free (data->content);
+  g_free (data);
+}
+The parameter passed actually return something in a array,seems void* is a wide representation  return is_big ? *(((gpointer *) a) + index) : GUINT_TO_POINTER (*(((guint *) a) + index));

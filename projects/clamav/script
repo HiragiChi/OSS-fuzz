@@ -1,0 +1,4 @@
+change script
+python3 infra/helper.py build_fuzzers {} --engine afl
+python3 infra/helper.py build_image {}
+python ../../../infra/helper.py run_fuzzer --corpus-dir=       --engine afl
