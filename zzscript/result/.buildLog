@@ -1,0 +1,5 @@
+usage: helper.py build_image [-h] [--pull]
+                             [--architecture {i386,x86_64,aarch64}] [--cache]
+                             [--no-pull] [--external]
+                             project
+helper.py build_image: error: the following arguments are required: project

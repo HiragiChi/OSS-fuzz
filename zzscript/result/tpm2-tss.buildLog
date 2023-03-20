@@ -1,0 +1,2520 @@
+INFO:root:Running: docker build -t gcr.io/oss-fuzz/tpm2-tss --file /home/yantingchi/Desktop/Lab/indirectCall/OSS-Fuzz/oss-fuzz/projects/tpm2-tss/Dockerfile /home/yantingchi/Desktop/Lab/indirectCall/OSS-Fuzz/oss-fuzz/projects/tpm2-tss.
+Sending build context to Docker daemon  10.24kB
+Step 1/21 : FROM gcr.io/oss-fuzz-base/base-builder
+ ---> 5105f382f9ee
+Step 2/21 : RUN apt-get update &&     apt-get install -y     autoconf-archive     curl     libcmocka0     libcmocka-dev     net-tools     build-essential     git     pkg-config     gcc     g++     m4     libtool     automake     libgcrypt20-dev     libssl-dev     autoconf     gnulib     wget     doxygen     libdbus-1-dev     libglib2.0-dev     clang-6.0     clang-tools-6.0     pandoc     lcov     libcurl4-openssl-dev     dbus-x11     python-yaml     python3-yaml     vim-common     acl
+ ---> Using cache
+ ---> e7ca0acbe3d9
+Step 3/21 : RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-6.0 100
+ ---> Using cache
+ ---> acdc0312071a
+Step 4/21 : RUN update-alternatives --install /usr/bin/scan-build scan-build /usr/bin/scan-build-6.0 100
+ ---> Using cache
+ ---> 21f4c1a255fc
+Step 5/21 : ARG autoconf_archive=autoconf-archive-2018.03.13
+ ---> Using cache
+ ---> ed3b4c58bcd0
+Step 6/21 : WORKDIR /tmp
+ ---> Using cache
+ ---> 7b9cda4a5807
+Step 7/21 : RUN wget --quiet --show-progress --progress=dot:giga "http://mirror.kumi.systems/gnu/autoconf-archive/$autoconf_archive.tar.xz" 		&& tar -xf $autoconf_archive.tar.xz         && rm $autoconf_archive.tar.xz         && cd $autoconf_archive         && ./configure --prefix=/usr         && make -j $(nproc) && make install
+ ---> Using cache
+ ---> 15f90924cf7f
+Step 8/21 : RUN rm -fr $autoconf_archive.tar.xz
+ ---> Using cache
+ ---> 9805f9afcbb5
+Step 9/21 : ARG ibmtpm_name=ibmtpm1661
+ ---> Using cache
+ ---> 2b0be4e0e261
+Step 10/21 : WORKDIR /tmp
+ ---> Using cache
+ ---> 1850b0d80e45
+Step 11/21 : RUN wget --quiet --show-progress --progress=dot:giga "https://downloads.sourceforge.net/project/ibmswtpm2/$ibmtpm_name.tar.gz" 	&& sha256sum $ibmtpm_name.tar.gz | grep ^55145928ad2b24f34be6a0eacf9fb492e10e0ea919b8428c721fa970e85d6147 	&& mkdir -p $ibmtpm_name 	&& tar xvf $ibmtpm_name.tar.gz -C $ibmtpm_name 	&& rm $ibmtpm_name.tar.gz
+ ---> Using cache
+ ---> 69c6d54ccb03
+Step 12/21 : WORKDIR $ibmtpm_name/src
+ ---> Using cache
+ ---> 757d6c7beb33
+Step 13/21 : RUN CFLAGS="-I/usr/local/openssl/include" make -j$(nproc) && cp tpm_server /usr/local/bin
+ ---> Using cache
+ ---> 635809fb6536
+Step 14/21 : RUN rm -fr $ibmtpm_name/src $ibmtpm_name.tar.gz
+ ---> Using cache
+ ---> ab4e5362f64f
+Step 15/21 : ARG uthash="2.1.0"
+ ---> Using cache
+ ---> 9fefd57dfd1f
+Step 16/21 : WORKDIR /tmp
+ ---> Using cache
+ ---> 6b3e9b4902f3
+Step 17/21 : RUN wget --quiet --show-progress --progress=dot:giga "https://github.com/troydhanson/uthash/archive/v${uthash}.tar.gz" 	&& tar -xf v${uthash}.tar.gz         && cp uthash-${uthash}/src/*.h /usr/include/
+ ---> Using cache
+ ---> f98846c777bb
+Step 18/21 : RUN rm -rf uthash-${uthash}/ v${uthash}.tar.gz
+ ---> Using cache
+ ---> bab641dc06a1
+Step 19/21 : RUN git clone --depth 1   https://github.com/tpm2-software/tpm2-tss $SRC/tpm2-tss/
+ ---> Using cache
+ ---> fe9533539b51
+Step 20/21 : WORKDIR $SRC/tpm2-tss/
+ ---> Using cache
+ ---> 46a2ae690ada
+Step 21/21 : COPY build.sh $SRC/
+ ---> Using cache
+ ---> 8419281a11b4
+Successfully built 8419281a11b4
+Successfully tagged gcr.io/oss-fuzz/tpm2-tss:latest
+INFO:root:Keeping existing build artifacts as-is (if any).
+INFO:root:Running: docker run --rm --privileged --shm-size=2g --platform linux/amd64 -i -e FUZZING_ENGINE=afl -e SANITIZER=address -e ARCHITECTURE=x86_64 -e PROJECT_NAME=tpm2-tss -e HELPER=True -e FUZZING_LANGUAGE=c++ -v /home/yantingchi/Desktop/Lab/indirectCall/OSS-Fuzz/oss-fuzz/build/out/tpm2-tss/:/out -v /home/yantingchi/Desktop/Lab/indirectCall/OSS-Fuzz/oss-fuzz/build/work/tpm2-tss:/work -t gcr.io/oss-fuzz/tpm2-tss.
+---------------------------------------------------------------
+Copying precompiled AFL++
+
+AFL++ target compilation setup:
+AFL_LLVM_MODE_WORKAROUND=0
+AFL_SKIP_OSSFUZZ=1
+AFL_LLVM_INSTRUMENT=CLASSIC
+AFL_IGNORE_UNKNOWN_ENVS=1
+AFL_QUIET=1
+AFL_IGNORE_PROBLEMS=1
+
+ done.
+---------------------------------------------------------------
+CC=/src/aflplusplus/afl-clang-fast
+CXX=/src/aflplusplus/afl-clang-fast++
+CFLAGS=-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-after-scope 
+CXXFLAGS=-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=address -fsanitize-address-use-after-scope  -stdlib=libc++
+RUSTFLAGS=--cfg fuzzing -Zsanitizer=address -Cdebuginfo=1 -Cforce-frame-pointers
+---------------------------------------------------------------
++ CFLAGS='-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all -fuse-ld=lld'
++ CXXFLAGS='-O1 -fno-omit-frame-pointer -gline-tables-only -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION -fsanitize=cfi-icall -flto -fvisibility=hidden -fno-sanitize-trap=all -fsanitize-recover=all  -stdlib=libc++ -fuse-ld=lld'
++ cd /src/tpm2-tss/
++ export LD_LIBRARY_PATH=/usr/local/bin
++ LD_LIBRARY_PATH=/usr/local/bin
++ export GEN_FUZZ=1
++ GEN_FUZZ=1
++ ./bootstrap
+Generating file lists: src_vars.mk
+Generating fuzz tests
+^[[A^[[A^[[A^[[A^[[A^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^[[Baclocal: installing 'm4/ax_ac_append_to_file.m4' from '/usr/share/aclocal/ax_ac_append_to_file.m4'
+aclocal: installing 'm4/ax_ac_print_to_file.m4' from '/usr/share/aclocal/ax_ac_print_to_file.m4'
+aclocal: installing 'm4/ax_add_am_macro_static.m4' from '/usr/share/aclocal/ax_add_am_macro_static.m4'
+aclocal: installing 'm4/ax_add_fortify_source.m4' from '/usr/share/aclocal/ax_add_fortify_source.m4'
+aclocal: installing 'm4/ax_am_macros_static.m4' from '/usr/share/aclocal/ax_am_macros_static.m4'
+aclocal: installing 'm4/ax_check_compile_flag.m4' from '/usr/share/aclocal/ax_check_compile_flag.m4'
+aclocal: installing 'm4/ax_check_enable_debug.m4' from '/usr/share/aclocal/ax_check_enable_debug.m4'
+aclocal: installing 'm4/ax_check_link_flag.m4' from '/usr/share/aclocal/ax_check_link_flag.m4'
+aclocal: installing 'm4/ax_code_coverage.m4' from '/usr/share/aclocal/ax_code_coverage.m4'
+aclocal: installing 'm4/ax_file_escapes.m4' from '/usr/share/aclocal/ax_file_escapes.m4'
+aclocal: installing 'm4/ax_is_release.m4' from '/usr/share/aclocal/ax_is_release.m4'
+aclocal: installing 'm4/ax_normalize_path.m4' from '/usr/share/aclocal/ax_normalize_path.m4'
+aclocal: installing 'm4/ax_prog_doxygen.m4' from '/usr/share/aclocal/ax_prog_doxygen.m4'
+aclocal: installing 'm4/ax_recursive_eval.m4' from '/usr/share/aclocal/ax_recursive_eval.m4'
+aclocal: installing 'm4/ax_valgrind_check.m4' from '/usr/share/aclocal/ax_valgrind_check.m4'
+aclocal: installing 'm4/libtool.m4' from '/usr/share/aclocal/libtool.m4'
+aclocal: installing 'm4/ltdl.m4' from '/usr/share/aclocal/ltdl.m4'
+aclocal: installing 'm4/ltoptions.m4' from '/usr/share/aclocal/ltoptions.m4'
+aclocal: installing 'm4/ltsugar.m4' from '/usr/share/aclocal/ltsugar.m4'
+aclocal: installing 'm4/ltversion.m4' from '/usr/share/aclocal/ltversion.m4'
+aclocal: installing 'm4/lt~obsolete.m4' from '/usr/share/aclocal/lt~obsolete.m4'
+aclocal: installing 'm4/pkg.m4' from '/usr/share/aclocal/pkg.m4'
+libtoolize: putting auxiliary files in '.'.
+libtoolize: linking file './ltmain.sh'
+configure.ac:28: installing './compile'
+configure.ac:23: installing './config.guess'
+configure.ac:23: installing './config.sub'
+configure.ac:12: installing './install-sh'
+configure.ac:12: installing './missing'
+Makefile.am: installing './depcomp'
+parallel-tests: installing './test-driver'
++ ./configure CC=/src/aflplusplus/afl-clang-fast CXX=/src/aflplusplus/afl-clang-fast++ --enable-debug --with-fuzzing=ossfuzz --enable-tcti-fuzzing --disable-tcti-device --disable-tcti-mssim --disable-tcti-swtpm --disable-tcti-spi-ftdi --disable-tcti-spi-lt2go --disable-doxygen-doc --disable-shared --disable-fapi --disable-policy
+configure: WARNING: unrecognized options: --disable-tcti-spi-ftdi
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+checking for gawk... no
+checking for mawk... mawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking whether make supports nested variables... (cached) yes
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking whether to enable debugging... yes
+checking for gcc... /src/aflplusplus/afl-clang-fast
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether /src/aflplusplus/afl-clang-fast accepts -g... yes
+checking for /src/aflplusplus/afl-clang-fast option to accept ISO C89... none needed
+checking whether /src/aflplusplus/afl-clang-fast understands -c and -o together... yes
+checking whether make supports the include directive... yes (GNU style)
+checking dependency style of /src/aflplusplus/afl-clang-fast... gcc3
+checking whether we are using the GNU C++ compiler... yes
+checking whether /src/aflplusplus/afl-clang-fast++ accepts -g... yes
+checking dependency style of /src/aflplusplus/afl-clang-fast++... gcc3
+checking whether ln -s works... yes
+checking how to run the C preprocessor... /src/aflplusplus/afl-clang-fast -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking minix/config.h usability... no
+checking minix/config.h presence... no
+checking for minix/config.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by /src/aflplusplus/afl-clang-fast... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking the maximum length of command line arguments... 1572864
+checking how to convert x86_64-pc-linux-gnu file names to x86_64-pc-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-pc-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from /src/aflplusplus/afl-clang-fast object... failed
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if /src/aflplusplus/afl-clang-fast supports -fno-rtti -fno-exceptions... yes
+checking for /src/aflplusplus/afl-clang-fast option to produce PIC... -fPIC -DPIC
+checking if /src/aflplusplus/afl-clang-fast PIC flag -fPIC -DPIC works... yes
+checking if /src/aflplusplus/afl-clang-fast static flag -static works... yes
+checking if /src/aflplusplus/afl-clang-fast supports -c -o file.o... yes
+checking if /src/aflplusplus/afl-clang-fast supports -c -o file.o... (cached) yes
+checking whether the /src/aflplusplus/afl-clang-fast linker (/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... /src/aflplusplus/afl-clang-fast++ -E
+checking for ld used by /src/aflplusplus/afl-clang-fast++... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking whether the /src/aflplusplus/afl-clang-fast++ linker (/usr/bin/ld) supports shared libraries... yes
+checking for /src/aflplusplus/afl-clang-fast++ option to produce PIC... -fPIC -DPIC
+checking if /src/aflplusplus/afl-clang-fast++ PIC flag -fPIC -DPIC works... yes
+checking if /src/aflplusplus/afl-clang-fast++ static flag -static works... yes
+checking if /src/aflplusplus/afl-clang-fast++ supports -c -o file.o... yes
+checking if /src/aflplusplus/afl-clang-fast++ supports -c -o file.o... (cached) yes
+checking whether the /src/aflplusplus/afl-clang-fast++ linker (/usr/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for library containing dlopen... none required
+checking for dlerror... yes
+checking for shl_load... no
+checking for shl_load in -ldld... no
+checking for dld_link in -ldld... no
+checking for pkg-config... /usr/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for strndup... yes
+checking for reallocarray... yes
+checking for CRYPTO... yes
+checking for EVP_sm3 in -lcrypto... yes
+checking for EVP_sm4_cfb128 in -lcrypto... yes
+checking for curl_url_strerror in -lcurl... no
+checking libtpms/tpm_library.h usability... no
+checking libtpms/tpm_library.h presence... no
+checking for libtpms/tpm_library.h... no
+configure: WARNING: library libtpms missing
+checking for valgrind... no
+checking if LD -Wl,--version-script works... yes
+checking whether C compiler accepts -std=c99... yes
+checking whether C compiler accepts -Wall... yes
+checking whether C compiler accepts -Wextra... yes
+checking whether C compiler accepts -Wformat-security... yes
+checking whether C compiler accepts -fstack-protector-all... yes
+checking whether C compiler accepts -fpic... yes
+checking whether C compiler accepts -fPIC... yes
+checking whether C compiler accepts -Wno-missing-braces... yes
+checking whether C compiler accepts -Wstrict-overflow=5... yes
+checking whether the linker accepts -Wl,--no-undefined... yes
+checking whether the linker accepts -Wl,-z,noexecstack... yes
+checking whether the linker accepts -Wl,-z,now... yes
+checking whether the linker accepts -Wl,-z,relro... yes
+checking for systemd-sysusers... no
+checking for systemd-tmpfiles... no
+checking for useradd... yes
+checking for groupadd... yes
+checking for adduser... yes
+checking for addgroup... yes
+checking whether to build with code coverage support... no
+configure: "Building fuzzing tests with /src/aflplusplus/afl-clang-fast"
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating Doxyfile
+config.status: creating lib/tss2-sys.pc
+config.status: creating lib/tss2-esys.pc
+config.status: creating lib/tss2-mu.pc
+config.status: creating lib/tss2-tcti-device.pc
+config.status: creating lib/tss2-tcti-mssim.pc
+config.status: creating lib/tss2-tcti-swtpm.pc
+config.status: creating lib/tss2-tcti-pcap.pc
+config.status: creating lib/tss2-tcti-libtpms.pc
+config.status: creating lib/tss2-rc.pc
+config.status: creating lib/tss2-tctildr.pc
+config.status: creating lib/tss2-fapi.pc
+config.status: creating lib/tss2-tcti-cmd.pc
+config.status: creating lib/tss2-policy.pc
+config.status: creating lib/tss2-tcti-spi-helper.pc
+config.status: creating lib/tss2-tcti-spi-lt2go.pc
+config.status: creating config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+configure: WARNING: unrecognized options: --disable-tcti-spi-ftdi
+
+    tpm2-tss 3d3c9a8
+    esys:               yes
+    fapi:               no
+    policy:             no
+    tctidefaultmodule:  libtss2-tcti-default.so
+    tctidefaultconfig:  
+    unit:               no
+    integration:        no
+    testing backend:    
+    fapi test profile:  P_ECC
+    fuzzing:            ossfuzz
+    debug:              yes
+    maxloglevel:        trace
+    doxygen:            0 no
+    crypto backend:     ossl
+    sysconfdir:         ${prefix}/etc
+    localstatedir:      ${prefix}/var
+    runstatedir:        ${localstatedir}/run
+    sysusersdir:        ${prefix}/etc/sysusers.d
+    tmpfilesdir:        ${prefix}/etc/tmpfiles.d
+    userstatedir:       $HOME/.local/share
+    sysmeasurements:    /dev/null
+    imameasurements:    /dev/null
+    tcti_spi_lt2go      no
+
++ sed -i 's/@DX_RULES@/# @DX_RULES@/g' Makefile
+++ nproc
++ make -j 16 fuzz-targets
+  CC       src/tss2-tcti/tss2_esys_libtss2_esys_la-tctildr.lo
+  CC       src/tss2-tcti/tss2_esys_libtss2_esys_la-tctildr-dl.lo
+  CC       test/fuzz/Tss2_Sys_Shutdown_Prepare_fuzz-Tss2_Sys_Shutdown_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Startup_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Startup_Complete_fuzz-Tss2_Sys_Startup_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Shutdown_Complete_fuzz-Tss2_Sys_Shutdown_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Shutdown_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Shutdown_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SelfTest_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SelfTest_Prepare_fuzz-Tss2_Sys_SelfTest_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SelfTest_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SelfTest_Complete_fuzz-Tss2_Sys_SelfTest_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare_fuzz-Tss2_Sys_IncrementalSelfTest_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete_fuzz-Tss2_Sys_IncrementalSelfTest_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetTestResult_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetTestResult_Complete_fuzz-Tss2_Sys_GetTestResult_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_StartAuthSession_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_StartAuthSession_Prepare_fuzz-Tss2_Sys_StartAuthSession_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_StartAuthSession_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_StartAuthSession_Complete_fuzz-Tss2_Sys_StartAuthSession_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyRestart_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyRestart_Prepare_fuzz-Tss2_Sys_PolicyRestart_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyRestart_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyRestart_Complete_fuzz-Tss2_Sys_PolicyRestart_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Create_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Create_Prepare_fuzz-Tss2_Sys_Create_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Create_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Create_Complete_fuzz-Tss2_Sys_Create_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Load_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Load_Prepare_fuzz-Tss2_Sys_Load_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Load_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Load_Complete_fuzz-Tss2_Sys_Load_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_LoadExternal_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_LoadExternal_Prepare_fuzz-Tss2_Sys_LoadExternal_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_LoadExternal_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_LoadExternal_Complete_fuzz-Tss2_Sys_LoadExternal_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ReadPublic_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ReadPublic_Prepare_fuzz-Tss2_Sys_ReadPublic_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ReadPublic_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ReadPublic_Complete_fuzz-Tss2_Sys_ReadPublic_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ActivateCredential_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ActivateCredential_Prepare_fuzz-Tss2_Sys_ActivateCredential_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ActivateCredential_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ActivateCredential_Complete_fuzz-Tss2_Sys_ActivateCredential_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MakeCredential_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MakeCredential_Prepare_fuzz-Tss2_Sys_MakeCredential_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MakeCredential_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MakeCredential_Complete_fuzz-Tss2_Sys_MakeCredential_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Unseal_Prepare_fuzz-Tss2_Sys_Unseal_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Unseal_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Unseal_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Unseal_Complete_fuzz-Tss2_Sys_Unseal_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare_fuzz-Tss2_Sys_ObjectChangeAuth_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete_fuzz-Tss2_Sys_ObjectChangeAuth_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Duplicate_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Duplicate_Prepare_fuzz-Tss2_Sys_Duplicate_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Duplicate_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Duplicate_Complete_fuzz-Tss2_Sys_Duplicate_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Rewrap_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Rewrap_Prepare_fuzz-Tss2_Sys_Rewrap_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Rewrap_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Rewrap_Complete_fuzz-Tss2_Sys_Rewrap_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Import_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Import_Prepare_fuzz-Tss2_Sys_Import_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Import_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Import_Complete_fuzz-Tss2_Sys_Import_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare_fuzz-Tss2_Sys_RSA_Encrypt_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_RSA_Encrypt_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_RSA_Encrypt_Complete_fuzz-Tss2_Sys_RSA_Encrypt_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare_fuzz-Tss2_Sys_RSA_Decrypt_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_RSA_Decrypt_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_RSA_Decrypt_Complete_fuzz-Tss2_Sys_RSA_Decrypt_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare_fuzz-Tss2_Sys_ECDH_KeyGen_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete_fuzz-Tss2_Sys_ECDH_KeyGen_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare_fuzz-Tss2_Sys_ECDH_ZGen_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECDH_ZGen_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECDH_ZGen_Complete_fuzz-Tss2_Sys_ECDH_ZGen_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECC_Parameters_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECC_Parameters_Prepare_fuzz-Tss2_Sys_ECC_Parameters_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ECC_Parameters_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ECC_Parameters_Complete_fuzz-Tss2_Sys_ECC_Parameters_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare_fuzz-Tss2_Sys_ZGen_2Phase_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ZGen_2Phase_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ZGen_2Phase_Complete_fuzz-Tss2_Sys_ZGen_2Phase_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare_fuzz-Tss2_Sys_EncryptDecrypt_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt_Complete_fuzz-Tss2_Sys_EncryptDecrypt_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare_fuzz-Tss2_Sys_EncryptDecrypt2_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete_fuzz-Tss2_Sys_EncryptDecrypt2_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Hash_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Hash_Prepare_fuzz-Tss2_Sys_Hash_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Hash_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Hash_Complete_fuzz-Tss2_Sys_Hash_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Prepare_fuzz-Tss2_Sys_HMAC_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Complete_fuzz-Tss2_Sys_HMAC_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MAC_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MAC_Prepare_fuzz-Tss2_Sys_MAC_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MAC_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MAC_Complete_fuzz-Tss2_Sys_MAC_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetRandom_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetRandom_Prepare_fuzz-Tss2_Sys_GetRandom_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetRandom_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetRandom_Complete_fuzz-Tss2_Sys_GetRandom_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_StirRandom_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_StirRandom_Prepare_fuzz-Tss2_Sys_StirRandom_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_StirRandom_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_StirRandom_Complete_fuzz-Tss2_Sys_StirRandom_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Start_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Start_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Start_Prepare_fuzz-Tss2_Sys_HMAC_Start_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HMAC_Start_Complete_fuzz-Tss2_Sys_HMAC_Start_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MAC_Start_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MAC_Start_Prepare_fuzz-Tss2_Sys_MAC_Start_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_MAC_Start_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_MAC_Start_Complete_fuzz-Tss2_Sys_MAC_Start_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HashSequenceStart_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HashSequenceStart_Prepare_fuzz-Tss2_Sys_HashSequenceStart_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HashSequenceStart_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HashSequenceStart_Complete_fuzz-Tss2_Sys_HashSequenceStart_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SequenceUpdate_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SequenceUpdate_Prepare_fuzz-Tss2_Sys_SequenceUpdate_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SequenceUpdate_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SequenceUpdate_Complete_fuzz-Tss2_Sys_SequenceUpdate_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SequenceComplete_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SequenceComplete_Prepare_fuzz-Tss2_Sys_SequenceComplete_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SequenceComplete_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SequenceComplete_Complete_fuzz-Tss2_Sys_SequenceComplete_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare_fuzz-Tss2_Sys_EventSequenceComplete_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EventSequenceComplete_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EventSequenceComplete_Complete_fuzz-Tss2_Sys_EventSequenceComplete_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Certify_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Certify_Prepare_fuzz-Tss2_Sys_Certify_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Certify_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Certify_Complete_fuzz-Tss2_Sys_Certify_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CertifyX509_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CertifyX509_Prepare_fuzz-Tss2_Sys_CertifyX509_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CertifyX509_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CertifyX509_Complete_fuzz-Tss2_Sys_CertifyX509_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CertifyCreation_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CertifyCreation_Prepare_fuzz-Tss2_Sys_CertifyCreation_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CertifyCreation_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CertifyCreation_Complete_fuzz-Tss2_Sys_CertifyCreation_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Quote_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Quote_Prepare_fuzz-Tss2_Sys_Quote_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Quote_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Quote_Complete_fuzz-Tss2_Sys_Quote_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare_fuzz-Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete_fuzz-Tss2_Sys_GetSessionAuditDigest_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare_fuzz-Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete_fuzz-Tss2_Sys_GetCommandAuditDigest_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetTime_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetTime_Prepare_fuzz-Tss2_Sys_GetTime_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetTime_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetTime_Complete_fuzz-Tss2_Sys_GetTime_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Commit_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Commit_Prepare_fuzz-Tss2_Sys_Commit_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Commit_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Commit_Complete_fuzz-Tss2_Sys_Commit_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare_fuzz-Tss2_Sys_EC_Ephemeral_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EC_Ephemeral_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EC_Ephemeral_Complete_fuzz-Tss2_Sys_EC_Ephemeral_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_VerifySignature_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_VerifySignature_Prepare_fuzz-Tss2_Sys_VerifySignature_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_VerifySignature_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_VerifySignature_Complete_fuzz-Tss2_Sys_VerifySignature_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Sign_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Sign_Prepare_fuzz-Tss2_Sys_Sign_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Sign_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Sign_Complete_fuzz-Tss2_Sys_Sign_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare_fuzz-Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete_fuzz-Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Extend_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Extend_Prepare_fuzz-Tss2_Sys_PCR_Extend_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Extend_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Extend_Complete_fuzz-Tss2_Sys_PCR_Extend_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Event_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Event_Prepare_fuzz-Tss2_Sys_PCR_Event_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Event_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Event_Complete_fuzz-Tss2_Sys_PCR_Event_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Read_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Read_Prepare_fuzz-Tss2_Sys_PCR_Read_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Read_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Read_Complete_fuzz-Tss2_Sys_PCR_Read_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Allocate_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Allocate_Prepare_fuzz-Tss2_Sys_PCR_Allocate_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Allocate_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Allocate_Complete_fuzz-Tss2_Sys_PCR_Allocate_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare_fuzz-Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete_fuzz-Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare_fuzz-Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete_fuzz-Tss2_Sys_PCR_SetAuthValue_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Reset_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Reset_Prepare_fuzz-Tss2_Sys_PCR_Reset_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PCR_Reset_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PCR_Reset_Complete_fuzz-Tss2_Sys_PCR_Reset_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicySigned_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicySigned_Prepare_fuzz-Tss2_Sys_PolicySigned_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicySigned_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicySigned_Complete_fuzz-Tss2_Sys_PolicySigned_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicySecret_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicySecret_Prepare_fuzz-Tss2_Sys_PolicySecret_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicySecret_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicySecret_Complete_fuzz-Tss2_Sys_PolicySecret_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyTicket_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyTicket_Prepare_fuzz-Tss2_Sys_PolicyTicket_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyTicket_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyTicket_Complete_fuzz-Tss2_Sys_PolicyTicket_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyOR_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyOR_Prepare_fuzz-Tss2_Sys_PolicyOR_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyOR_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyOR_Complete_fuzz-Tss2_Sys_PolicyOR_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyPCR_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPCR_Prepare_fuzz-Tss2_Sys_PolicyPCR_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyPCR_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPCR_Complete_fuzz-Tss2_Sys_PolicyPCR_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyLocality_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyLocality_Prepare_fuzz-Tss2_Sys_PolicyLocality_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyLocality_Complete_fuzz-Tss2_Sys_PolicyLocality_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyLocality_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNV_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNV_Prepare_fuzz-Tss2_Sys_PolicyNV_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNV_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNV_Complete_fuzz-Tss2_Sys_PolicyNV_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare_fuzz-Tss2_Sys_PolicyCounterTimer_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete_fuzz-Tss2_Sys_PolicyCounterTimer_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare_fuzz-Tss2_Sys_PolicyCommandCode_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCommandCode_Complete_fuzz-Tss2_Sys_PolicyCommandCode_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCommandCode_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare_fuzz-Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete_fuzz-Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCpHash_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyCpHash_Prepare_fuzz-Tss2_Sys_PolicyCpHash_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyCpHash_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyCpHash_Complete_fuzz-Tss2_Sys_PolicyCpHash_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNameHash_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNameHash_Prepare_fuzz-Tss2_Sys_PolicyNameHash_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNameHash_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNameHash_Complete_fuzz-Tss2_Sys_PolicyNameHash_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare_fuzz-Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete_fuzz-Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare_fuzz-Tss2_Sys_PolicyAuthorize_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorize_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorize_Complete_fuzz-Tss2_Sys_PolicyAuthorize_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare_fuzz-Tss2_Sys_PolicyAuthValue_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthValue_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthValue_Complete_fuzz-Tss2_Sys_PolicyAuthValue_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyPassword_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPassword_Prepare_fuzz-Tss2_Sys_PolicyPassword_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyPassword_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyPassword_Complete_fuzz-Tss2_Sys_PolicyPassword_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyGetDigest_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare_fuzz-Tss2_Sys_PolicyGetDigest_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyGetDigest_Complete_fuzz-Tss2_Sys_PolicyGetDigest_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare_fuzz-Tss2_Sys_PolicyNvWritten_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNvWritten_Complete_fuzz-Tss2_Sys_PolicyNvWritten_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyNvWritten_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CreatePrimary_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CreatePrimary_Prepare_fuzz-Tss2_Sys_CreatePrimary_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CreatePrimary_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CreatePrimary_Complete_fuzz-Tss2_Sys_CreatePrimary_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HierarchyControl_Prepare_fuzz-Tss2_Sys_HierarchyControl_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HierarchyControl_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HierarchyControl_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HierarchyControl_Complete_fuzz-Tss2_Sys_HierarchyControl_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare_fuzz-Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete_fuzz-Tss2_Sys_SetPrimaryPolicy_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ChangePPS_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ChangePPS_Prepare_fuzz-Tss2_Sys_ChangePPS_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ChangePPS_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ChangePPS_Complete_fuzz-Tss2_Sys_ChangePPS_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ChangeEPS_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ChangeEPS_Prepare_fuzz-Tss2_Sys_ChangeEPS_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ChangeEPS_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ChangeEPS_Complete_fuzz-Tss2_Sys_ChangeEPS_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Clear_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Clear_Prepare_fuzz-Tss2_Sys_Clear_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Clear_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Clear_Complete_fuzz-Tss2_Sys_Clear_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClearControl_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClearControl_Prepare_fuzz-Tss2_Sys_ClearControl_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClearControl_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClearControl_Complete_fuzz-Tss2_Sys_ClearControl_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare_fuzz-Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete_fuzz-Tss2_Sys_HierarchyChangeAuth_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare_fuzz-Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete_fuzz-Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare_fuzz-Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PP_Commands_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete_fuzz-Tss2_Sys_DictionaryAttackParameters_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PP_Commands_Prepare_fuzz-Tss2_Sys_PP_Commands_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PP_Commands_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PP_Commands_Complete_fuzz-Tss2_Sys_PP_Commands_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare_fuzz-Tss2_Sys_SetAlgorithmSet_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete_fuzz-Tss2_Sys_SetAlgorithmSet_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare_fuzz-Tss2_Sys_FieldUpgradeStart_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete_fuzz-Tss2_Sys_FieldUpgradeStart_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare_fuzz-Tss2_Sys_FieldUpgradeData_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeData_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FieldUpgradeData_Complete_fuzz-Tss2_Sys_FieldUpgradeData_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FirmwareRead_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FirmwareRead_Prepare_fuzz-Tss2_Sys_FirmwareRead_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FirmwareRead_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FirmwareRead_Complete_fuzz-Tss2_Sys_FirmwareRead_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ContextSave_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ContextSave_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ContextSave_Prepare_fuzz-Tss2_Sys_ContextSave_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ContextSave_Complete_fuzz-Tss2_Sys_ContextSave_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ContextLoad_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ContextLoad_Prepare_fuzz-Tss2_Sys_ContextLoad_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ContextLoad_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ContextLoad_Complete_fuzz-Tss2_Sys_ContextLoad_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FlushContext_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FlushContext_Prepare_fuzz-Tss2_Sys_FlushContext_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_FlushContext_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_FlushContext_Complete_fuzz-Tss2_Sys_FlushContext_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EvictControl_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EvictControl_Prepare_fuzz-Tss2_Sys_EvictControl_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_EvictControl_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_EvictControl_Complete_fuzz-Tss2_Sys_EvictControl_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ReadClock_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ReadClock_Complete_fuzz-Tss2_Sys_ReadClock_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClockSet_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClockSet_Prepare_fuzz-Tss2_Sys_ClockSet_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClockSet_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClockSet_Complete_fuzz-Tss2_Sys_ClockSet_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare_fuzz-Tss2_Sys_ClockRateAdjust_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ClockRateAdjust_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ClockRateAdjust_Complete_fuzz-Tss2_Sys_ClockRateAdjust_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetCapability_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetCapability_Prepare_fuzz-Tss2_Sys_GetCapability_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_GetCapability_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_GetCapability_Complete_fuzz-Tss2_Sys_GetCapability_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_TestParms_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_TestParms_Prepare_fuzz-Tss2_Sys_TestParms_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_TestParms_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_TestParms_Complete_fuzz-Tss2_Sys_TestParms_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_DefineSpace_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare_fuzz-Tss2_Sys_NV_DefineSpace_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_DefineSpace_Complete_fuzz-Tss2_Sys_NV_DefineSpace_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare_fuzz-Tss2_Sys_NV_UndefineSpace_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete_fuzz-Tss2_Sys_NV_UndefineSpace_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare_fuzz-Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete_fuzz-Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare_fuzz-Tss2_Sys_NV_ReadPublic_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadPublic_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadPublic_Complete_fuzz-Tss2_Sys_NV_ReadPublic_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Write_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Write_Prepare_fuzz-Tss2_Sys_NV_Write_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Write_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Write_Complete_fuzz-Tss2_Sys_NV_Write_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Increment_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Increment_Prepare_fuzz-Tss2_Sys_NV_Increment_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Increment_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Increment_Complete_fuzz-Tss2_Sys_NV_Increment_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Extend_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Extend_Prepare_fuzz-Tss2_Sys_NV_Extend_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Extend_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Extend_Complete_fuzz-Tss2_Sys_NV_Extend_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_SetBits_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_SetBits_Prepare_fuzz-Tss2_Sys_NV_SetBits_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_SetBits_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_SetBits_Complete_fuzz-Tss2_Sys_NV_SetBits_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_WriteLock_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_WriteLock_Prepare_fuzz-Tss2_Sys_NV_WriteLock_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_WriteLock_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_WriteLock_Complete_fuzz-Tss2_Sys_NV_WriteLock_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare_fuzz-Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete_fuzz-Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Read_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Read_Prepare_fuzz-Tss2_Sys_NV_Read_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Read_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Read_Complete_fuzz-Tss2_Sys_NV_Read_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadLock_Prepare_fuzz-Tss2_Sys_NV_ReadLock_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadLock_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadLock_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ReadLock_Complete_fuzz-Tss2_Sys_NV_ReadLock_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare_fuzz-Tss2_Sys_NV_ChangeAuth_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete_fuzz-Tss2_Sys_NV_ChangeAuth_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Certify_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Certify_Prepare_fuzz-Tss2_Sys_NV_Certify_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_NV_Certify_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_NV_Certify_Complete_fuzz-Tss2_Sys_NV_Certify_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare_fuzz-Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete_fuzz-Tss2_Sys_Vendor_TCG_Test_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_AC_GetCapability_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_AC_GetCapability_Prepare_fuzz-Tss2_Sys_AC_GetCapability_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_AC_GetCapability_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_AC_GetCapability_Complete_fuzz-Tss2_Sys_AC_GetCapability_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_AC_Send_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_AC_Send_Prepare_fuzz-Tss2_Sys_AC_Send_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_AC_Send_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_AC_Send_Complete_fuzz-Tss2_Sys_AC_Send_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare_fuzz-Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete_fuzz-Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare_fuzz-Tss2_Sys_ACT_SetTimeout_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete_fuzz-Tss2_Sys_ACT_SetTimeout_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyTemplate_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyTemplate_Prepare_fuzz-Tss2_Sys_PolicyTemplate_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyTemplate_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyTemplate_Complete_fuzz-Tss2_Sys_PolicyTemplate_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CreateLoaded_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CreateLoaded_Prepare_fuzz-Tss2_Sys_CreateLoaded_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_CreateLoaded_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_CreateLoaded_Complete_fuzz-Tss2_Sys_CreateLoaded_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare_fuzz-Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete_fuzz-Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz.o
+  CC       test/fuzz/Tss2_Sys_Startup_Prepare_fuzz-main-sys.o
+  CC       test/fuzz/Tss2_Sys_Startup_Prepare_fuzz-Tss2_Sys_Startup_Prepare.fuzz.o
+  CC       src/tss2-tcti/tcti-common.lo
+  CC       test/fuzz/tcti/tcti-fuzzing.lo
+  CC       src/tss2-mu/base-types.lo
+  CC       src/tss2-mu/tpm2b-types.lo
+  CC       src/tss2-mu/tpma-types.lo
+  CC       src/tss2-mu/tpml-types.lo
+  CC       src/tss2-mu/tpms-types.lo
+  CC       src/tss2-mu/tpmt-types.lo
+  CC       src/tss2-mu/tpmu-types.lo
+  CC       src/util/io.lo
+  CC       src/util/key-value-parse.lo
+  CC       src/util/log.lo
+  CC       src/tss2-tcti/libtss2_tctildr_la-tctildr.lo
+  CC       src/tss2-tcti/libtss2_tctildr_la-tctildr-dl.lo
+  CC       src/tss2-tcti/tcti-pcap-builder.lo
+  CC       src/tss2-tcti/tcti-pcap.lo
+  CC       src/tss2-tcti/tcti-cmd.lo
+  CC       src/tss2-tcti/tcti-spi-helper.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ACT_SetTimeout.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_AC_GetCapability.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_AC_Send.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ActivateCredential.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Certify.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_CertifyCreation.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_CertifyX509.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ChangeEPS.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ChangePPS.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Clear.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ClearControl.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ClockRateAdjust.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ClockSet.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Commit.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ContextLoad.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ContextSave.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Create.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_CreateLoaded.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_CreatePrimary.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_DictionaryAttackLockReset.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_DictionaryAttackParameters.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Duplicate.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ECC_Parameters.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ECDH_KeyGen.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ECDH_ZGen.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_EC_Ephemeral.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_EncryptDecrypt.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_EncryptDecrypt2.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_EventSequenceComplete.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_EvictControl.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Execute.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_FieldUpgradeData.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_FieldUpgradeStart.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Finalize.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_FirmwareRead.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_FlushContext.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetCapability.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetCommandAuditDigest.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetCommandCode.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetContextSize.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetDecryptParam.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetCpBuffer.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetEncryptParam.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetRandom.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetRpBuffer.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetRspAuths.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetSessionAuditDigest.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetTctiContext.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetTestResult.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_GetTime.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_HMAC.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_HMAC_Start.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Hash.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_HashSequenceStart.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_HierarchyChangeAuth.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_HierarchyControl.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Import.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_IncrementalSelfTest.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Initialize.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Load.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_LoadExternal.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_MAC.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_MAC_Start.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_MakeCredential.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_Certify.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_ChangeAuth.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_DefineSpace.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_Extend.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_GlobalWriteLock.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_Increment.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_Read.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_ReadLock.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_ReadPublic.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_SetBits.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_UndefineSpace.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_UndefineSpaceSpecial.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_Write.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_NV_WriteLock.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ObjectChangeAuth.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_Allocate.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_Event.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_Extend.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_Read.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_Reset.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_SetAuthPolicy.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PCR_SetAuthValue.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PP_Commands.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyAuthValue.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyAuthorize.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyAuthorizeNV.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyCommandCode.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyCounterTimer.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyCpHash.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyDuplicationSelect.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyGetDigest.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyLocality.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyNV.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyNameHash.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyNvWritten.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyOR.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyPCR.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyPassword.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyPhysicalPresence.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyRestart.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicySecret.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicySigned.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyTemplate.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_PolicyTicket.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Policy_AC_SendSelect.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Quote.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_RSA_Decrypt.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_RSA_Encrypt.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ReadClock.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ReadPublic.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Rewrap.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SelfTest.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SequenceComplete.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SequenceUpdate.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetAlgorithmSet.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetCmdAuths.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetCommandCodeAuditStatus.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetDecryptParam.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetEncryptParam.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_SetPrimaryPolicy.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Shutdown.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Sign.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_StartAuthSession.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Startup.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_StirRandom.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_TestParms.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Unseal.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_Vendor_TCG_Test.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_VerifySignature.lo
+  CC       src/tss2-sys/api/libtss2_sys_la-Tss2_Sys_ZGen_2Phase.lo
+  CC       src/tss2-sys/libtss2_sys_la-sysapi_util.lo
+  CC       src/util/tss2_sys_libtss2_sys_la-log.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_AC_GetCapability.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ACT_SetTimeout.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_AC_Send.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ActivateCredential.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Certify.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_CertifyCreation.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_CertifyX509.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ChangeEPS.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ChangePPS.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Clear.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ClearControl.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ClockRateAdjust.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ClockSet.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Commit.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ContextLoad.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ContextSave.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Create.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_CreateLoaded.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_CreatePrimary.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_DictionaryAttackLockReset.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_DictionaryAttackParameters.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Duplicate.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ECC_Parameters.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ECDH_KeyGen.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ECDH_ZGen.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_EC_Ephemeral.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_EncryptDecrypt.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_EncryptDecrypt2.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_EventSequenceComplete.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_EvictControl.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_FieldUpgradeData.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_FieldUpgradeStart.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_FirmwareRead.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_FlushContext.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetCapability.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetCommandAuditDigest.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetRandom.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetSessionAuditDigest.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetTestResult.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_GetTime.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_HMAC.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_HMAC_Start.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Hash.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_HashSequenceStart.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_HierarchyChangeAuth.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_HierarchyControl.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Import.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_IncrementalSelfTest.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Load.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_LoadExternal.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_MAC.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_MAC_Start.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_MakeCredential.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_Certify.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_ChangeAuth.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_DefineSpace.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_Extend.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_GlobalWriteLock.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_Increment.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_Read.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_ReadLock.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_ReadPublic.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_SetBits.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_UndefineSpace.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_UndefineSpaceSpecial.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_Write.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_NV_WriteLock.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ObjectChangeAuth.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_Allocate.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_Event.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_Extend.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_Read.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_Reset.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_SetAuthPolicy.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PCR_SetAuthValue.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PP_Commands.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyAuthValue.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyAuthorize.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyCommandCode.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyAuthorizeNV.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyCounterTimer.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyCpHash.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyDuplicationSelect.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyGetDigest.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyLocality.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyNV.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyNameHash.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyNvWritten.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyOR.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyPCR.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyPassword.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyPhysicalPresence.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyRestart.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicySigned.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyTemplate.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicySecret.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_PolicyTicket.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Policy_AC_SendSelect.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Quote.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_RSA_Decrypt.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_RSA_Encrypt.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ReadClock.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ReadPublic.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Rewrap.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SelfTest.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SequenceComplete.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SequenceUpdate.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SetAlgorithmSet.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SetCommandCodeAuditStatus.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_SetPrimaryPolicy.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Shutdown.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Sign.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_StartAuthSession.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Startup.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_StirRandom.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_TestParms.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Unseal.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_Vendor_TCG_Test.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_VerifySignature.lo
+  CC       src/tss2-esys/api/libtss2_esys_la-Esys_ZGen_2Phase.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_context.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_crypto.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_free.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_iutil.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_mu.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_tr.lo
+  CC       src/tss2-esys/libtss2_esys_la-esys_crypto_ossl.lo
+  CC       src/tss2-rc/tss2_rc.lo
+  CC       test/integration/fuzz_libfuzz_utils_la-sys-context-util.lo
+  CC       test/integration/fuzz_libfuzz_utils_la-sys-test-options.lo
+  CCLD     libutil.la
+  CCLD     src/tss2-rc/libtss2-rc.la
+  CCLD     src/tss2-mu/libtss2-mu.la
+  CCLD     src/tss2-tcti/libtss2-tctildr.la
+  CCLD     src/tss2-tcti/libtss2-tcti-pcap.la
+  CCLD     src/tss2-tcti/libtss2-tcti-cmd.la
+  CCLD     src/tss2-tcti/libtss2-tcti-spi-helper.la
+  CCLD     src/tss2-sys/libtss2-sys.la
+  CCLD     src/tss2-esys/libtss2-esys.la
+  CCLD     test/fuzz/tcti/libtss2-tcti-fuzzing.la
+  CCLD     test/fuzz/libfuzz_utils.la
+  CCLD     test/fuzz/Tss2_Sys_Startup_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Startup_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Shutdown_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Shutdown_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SelfTest_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SelfTest_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_StartAuthSession_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetTestResult_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_StartAuthSession_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyRestart_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyRestart_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Create_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Create_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Load_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Load_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_LoadExternal_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_LoadExternal_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ReadPublic_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ReadPublic_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ActivateCredential_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ActivateCredential_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MakeCredential_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MakeCredential_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Unseal_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Unseal_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Duplicate_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Duplicate_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Rewrap_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Rewrap_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Import_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Import_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_RSA_Encrypt_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_RSA_Decrypt_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECDH_ZGen_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECC_Parameters_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ECC_Parameters_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ZGen_2Phase_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EncryptDecrypt_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Hash_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Hash_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HMAC_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HMAC_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MAC_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MAC_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetRandom_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetRandom_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_StirRandom_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_StirRandom_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HMAC_Start_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HMAC_Start_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MAC_Start_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_MAC_Start_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HashSequenceStart_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HashSequenceStart_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SequenceUpdate_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SequenceUpdate_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SequenceComplete_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SequenceComplete_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EventSequenceComplete_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Certify_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Certify_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CertifyX509_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CertifyX509_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CertifyCreation_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CertifyCreation_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Quote_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Quote_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetTime_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetTime_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Commit_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Commit_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EC_Ephemeral_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_VerifySignature_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_VerifySignature_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Sign_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Sign_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Extend_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Extend_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Event_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Event_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Read_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Read_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Allocate_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Allocate_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Reset_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PCR_Reset_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicySigned_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicySigned_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicySecret_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicySecret_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyTicket_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyTicket_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyOR_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyOR_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPCR_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPCR_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyLocality_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyLocality_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNV_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNV_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCommandCode_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCpHash_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyCpHash_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNameHash_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNameHash_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthorize_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthValue_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPassword_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyPassword_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyGetDigest_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyNvWritten_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CreatePrimary_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CreatePrimary_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HierarchyControl_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HierarchyControl_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ChangePPS_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ChangePPS_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ChangeEPS_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ChangeEPS_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Clear_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Clear_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClearControl_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClearControl_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PP_Commands_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PP_Commands_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FieldUpgradeData_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FirmwareRead_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FirmwareRead_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ContextSave_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ContextSave_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ContextLoad_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ContextLoad_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FlushContext_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_FlushContext_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EvictControl_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_EvictControl_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ReadClock_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClockSet_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClockSet_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ClockRateAdjust_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetCapability_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_GetCapability_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_TestParms_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_TestParms_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_DefineSpace_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ReadPublic_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Write_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Write_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Increment_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Increment_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Extend_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Extend_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_SetBits_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_SetBits_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_WriteLock_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_WriteLock_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Read_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Read_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ReadLock_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ReadLock_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Certify_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_NV_Certify_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_AC_GetCapability_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_AC_GetCapability_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_AC_Send_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_AC_Send_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyTemplate_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyTemplate_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CreateLoaded_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_CreateLoaded_Complete.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz
+  CCLD     test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz
+++ ls test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete.fuzz test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare.fuzz test/fuzz/Tss2_Sys_AC_GetCapability_Complete.fuzz test/fuzz/Tss2_Sys_AC_GetCapability_Prepare.fuzz test/fuzz/Tss2_Sys_AC_Send_Complete.fuzz test/fuzz/Tss2_Sys_AC_Send_Prepare.fuzz test/fuzz/Tss2_Sys_ActivateCredential_Complete.fuzz test/fuzz/Tss2_Sys_ActivateCredential_Prepare.fuzz test/fuzz/Tss2_Sys_CertifyCreation_Complete.fuzz test/fuzz/Tss2_Sys_CertifyCreation_Prepare.fuzz test/fuzz/Tss2_Sys_CertifyX509_Complete.fuzz test/fuzz/Tss2_Sys_CertifyX509_Prepare.fuzz test/fuzz/Tss2_Sys_Certify_Complete.fuzz test/fuzz/Tss2_Sys_Certify_Prepare.fuzz test/fuzz/Tss2_Sys_ChangeEPS_Complete.fuzz test/fuzz/Tss2_Sys_ChangeEPS_Prepare.fuzz test/fuzz/Tss2_Sys_ChangePPS_Complete.fuzz test/fuzz/Tss2_Sys_ChangePPS_Prepare.fuzz test/fuzz/Tss2_Sys_ClearControl_Complete.fuzz test/fuzz/Tss2_Sys_ClearControl_Prepare.fuzz test/fuzz/Tss2_Sys_Clear_Complete.fuzz test/fuzz/Tss2_Sys_Clear_Prepare.fuzz test/fuzz/Tss2_Sys_ClockRateAdjust_Complete.fuzz test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare.fuzz test/fuzz/Tss2_Sys_ClockSet_Complete.fuzz test/fuzz/Tss2_Sys_ClockSet_Prepare.fuzz test/fuzz/Tss2_Sys_Commit_Complete.fuzz test/fuzz/Tss2_Sys_Commit_Prepare.fuzz test/fuzz/Tss2_Sys_ContextLoad_Complete.fuzz test/fuzz/Tss2_Sys_ContextLoad_Prepare.fuzz test/fuzz/Tss2_Sys_ContextSave_Complete.fuzz test/fuzz/Tss2_Sys_ContextSave_Prepare.fuzz test/fuzz/Tss2_Sys_CreateLoaded_Complete.fuzz test/fuzz/Tss2_Sys_CreateLoaded_Prepare.fuzz test/fuzz/Tss2_Sys_CreatePrimary_Complete.fuzz test/fuzz/Tss2_Sys_CreatePrimary_Prepare.fuzz test/fuzz/Tss2_Sys_Create_Complete.fuzz test/fuzz/Tss2_Sys_Create_Prepare.fuzz test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete.fuzz test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz test/fuzz/Tss2_Sys_Duplicate_Complete.fuzz test/fuzz/Tss2_Sys_Duplicate_Prepare.fuzz test/fuzz/Tss2_Sys_ECC_Parameters_Complete.fuzz test/fuzz/Tss2_Sys_ECC_Parameters_Prepare.fuzz test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete.fuzz test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare.fuzz test/fuzz/Tss2_Sys_ECDH_ZGen_Complete.fuzz test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare.fuzz test/fuzz/Tss2_Sys_EC_Ephemeral_Complete.fuzz test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare.fuzz test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete.fuzz test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare.fuzz test/fuzz/Tss2_Sys_EncryptDecrypt_Complete.fuzz test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare.fuzz test/fuzz/Tss2_Sys_EventSequenceComplete_Complete.fuzz test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare.fuzz test/fuzz/Tss2_Sys_EvictControl_Complete.fuzz test/fuzz/Tss2_Sys_EvictControl_Prepare.fuzz test/fuzz/Tss2_Sys_FieldUpgradeData_Complete.fuzz test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare.fuzz test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete.fuzz test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare.fuzz test/fuzz/Tss2_Sys_FirmwareRead_Complete.fuzz test/fuzz/Tss2_Sys_FirmwareRead_Prepare.fuzz test/fuzz/Tss2_Sys_FlushContext_Complete.fuzz test/fuzz/Tss2_Sys_FlushContext_Prepare.fuzz test/fuzz/Tss2_Sys_GetCapability_Complete.fuzz test/fuzz/Tss2_Sys_GetCapability_Prepare.fuzz test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete.fuzz test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz test/fuzz/Tss2_Sys_GetRandom_Complete.fuzz test/fuzz/Tss2_Sys_GetRandom_Prepare.fuzz test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete.fuzz test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz test/fuzz/Tss2_Sys_GetTestResult_Complete.fuzz test/fuzz/Tss2_Sys_GetTime_Complete.fuzz test/fuzz/Tss2_Sys_GetTime_Prepare.fuzz test/fuzz/Tss2_Sys_HMAC_Complete.fuzz test/fuzz/Tss2_Sys_HMAC_Prepare.fuzz test/fuzz/Tss2_Sys_HMAC_Start_Complete.fuzz test/fuzz/Tss2_Sys_HMAC_Start_Prepare.fuzz test/fuzz/Tss2_Sys_HashSequenceStart_Complete.fuzz test/fuzz/Tss2_Sys_HashSequenceStart_Prepare.fuzz test/fuzz/Tss2_Sys_Hash_Complete.fuzz test/fuzz/Tss2_Sys_Hash_Prepare.fuzz test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete.fuzz test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz test/fuzz/Tss2_Sys_HierarchyControl_Complete.fuzz test/fuzz/Tss2_Sys_HierarchyControl_Prepare.fuzz test/fuzz/Tss2_Sys_Import_Complete.fuzz test/fuzz/Tss2_Sys_Import_Prepare.fuzz test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete.fuzz test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare.fuzz test/fuzz/Tss2_Sys_LoadExternal_Complete.fuzz test/fuzz/Tss2_Sys_LoadExternal_Prepare.fuzz test/fuzz/Tss2_Sys_Load_Complete.fuzz test/fuzz/Tss2_Sys_Load_Prepare.fuzz test/fuzz/Tss2_Sys_MAC_Complete.fuzz test/fuzz/Tss2_Sys_MAC_Prepare.fuzz test/fuzz/Tss2_Sys_MAC_Start_Complete.fuzz test/fuzz/Tss2_Sys_MAC_Start_Prepare.fuzz test/fuzz/Tss2_Sys_MakeCredential_Complete.fuzz test/fuzz/Tss2_Sys_MakeCredential_Prepare.fuzz test/fuzz/Tss2_Sys_NV_Certify_Complete.fuzz test/fuzz/Tss2_Sys_NV_Certify_Prepare.fuzz test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete.fuzz test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare.fuzz test/fuzz/Tss2_Sys_NV_DefineSpace_Complete.fuzz test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare.fuzz test/fuzz/Tss2_Sys_NV_Extend_Complete.fuzz test/fuzz/Tss2_Sys_NV_Extend_Prepare.fuzz test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz test/fuzz/Tss2_Sys_NV_Increment_Complete.fuzz test/fuzz/Tss2_Sys_NV_Increment_Prepare.fuzz test/fuzz/Tss2_Sys_NV_ReadLock_Complete.fuzz test/fuzz/Tss2_Sys_NV_ReadLock_Prepare.fuzz test/fuzz/Tss2_Sys_NV_ReadPublic_Complete.fuzz test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare.fuzz test/fuzz/Tss2_Sys_NV_Read_Complete.fuzz test/fuzz/Tss2_Sys_NV_Read_Prepare.fuzz test/fuzz/Tss2_Sys_NV_SetBits_Complete.fuzz test/fuzz/Tss2_Sys_NV_SetBits_Prepare.fuzz test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete.fuzz test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare.fuzz test/fuzz/Tss2_Sys_NV_WriteLock_Complete.fuzz test/fuzz/Tss2_Sys_NV_WriteLock_Prepare.fuzz test/fuzz/Tss2_Sys_NV_Write_Complete.fuzz test/fuzz/Tss2_Sys_NV_Write_Prepare.fuzz test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete.fuzz test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_Allocate_Complete.fuzz test/fuzz/Tss2_Sys_PCR_Allocate_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_Event_Complete.fuzz test/fuzz/Tss2_Sys_PCR_Event_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_Extend_Complete.fuzz test/fuzz/Tss2_Sys_PCR_Extend_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_Read_Complete.fuzz test/fuzz/Tss2_Sys_PCR_Read_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_Reset_Complete.fuzz test/fuzz/Tss2_Sys_PCR_Reset_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete.fuzz test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz test/fuzz/Tss2_Sys_PP_Commands_Complete.fuzz test/fuzz/Tss2_Sys_PP_Commands_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyAuthValue_Complete.fuzz test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyAuthorize_Complete.fuzz test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyCommandCode_Complete.fuzz test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete.fuzz test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyCpHash_Complete.fuzz test/fuzz/Tss2_Sys_PolicyCpHash_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyGetDigest_Complete.fuzz test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyLocality_Complete.fuzz test/fuzz/Tss2_Sys_PolicyLocality_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyNV_Complete.fuzz test/fuzz/Tss2_Sys_PolicyNV_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyNameHash_Complete.fuzz test/fuzz/Tss2_Sys_PolicyNameHash_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyNvWritten_Complete.fuzz test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyOR_Complete.fuzz test/fuzz/Tss2_Sys_PolicyOR_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyPCR_Complete.fuzz test/fuzz/Tss2_Sys_PolicyPCR_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyPassword_Complete.fuzz test/fuzz/Tss2_Sys_PolicyPassword_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyRestart_Complete.fuzz test/fuzz/Tss2_Sys_PolicyRestart_Prepare.fuzz test/fuzz/Tss2_Sys_PolicySecret_Complete.fuzz test/fuzz/Tss2_Sys_PolicySecret_Prepare.fuzz test/fuzz/Tss2_Sys_PolicySigned_Complete.fuzz test/fuzz/Tss2_Sys_PolicySigned_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyTemplate_Complete.fuzz test/fuzz/Tss2_Sys_PolicyTemplate_Prepare.fuzz test/fuzz/Tss2_Sys_PolicyTicket_Complete.fuzz test/fuzz/Tss2_Sys_PolicyTicket_Prepare.fuzz test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz test/fuzz/Tss2_Sys_Quote_Complete.fuzz test/fuzz/Tss2_Sys_Quote_Prepare.fuzz test/fuzz/Tss2_Sys_RSA_Decrypt_Complete.fuzz test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare.fuzz test/fuzz/Tss2_Sys_RSA_Encrypt_Complete.fuzz test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare.fuzz test/fuzz/Tss2_Sys_ReadClock_Complete.fuzz test/fuzz/Tss2_Sys_ReadPublic_Complete.fuzz test/fuzz/Tss2_Sys_ReadPublic_Prepare.fuzz test/fuzz/Tss2_Sys_Rewrap_Complete.fuzz test/fuzz/Tss2_Sys_Rewrap_Prepare.fuzz test/fuzz/Tss2_Sys_SelfTest_Complete.fuzz test/fuzz/Tss2_Sys_SelfTest_Prepare.fuzz test/fuzz/Tss2_Sys_SequenceComplete_Complete.fuzz test/fuzz/Tss2_Sys_SequenceComplete_Prepare.fuzz test/fuzz/Tss2_Sys_SequenceUpdate_Complete.fuzz test/fuzz/Tss2_Sys_SequenceUpdate_Prepare.fuzz test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete.fuzz test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare.fuzz test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete.fuzz test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz test/fuzz/Tss2_Sys_Shutdown_Complete.fuzz test/fuzz/Tss2_Sys_Shutdown_Prepare.fuzz test/fuzz/Tss2_Sys_Sign_Complete.fuzz test/fuzz/Tss2_Sys_Sign_Prepare.fuzz test/fuzz/Tss2_Sys_StartAuthSession_Complete.fuzz test/fuzz/Tss2_Sys_StartAuthSession_Prepare.fuzz test/fuzz/Tss2_Sys_Startup_Complete.fuzz test/fuzz/Tss2_Sys_Startup_Prepare.fuzz test/fuzz/Tss2_Sys_StirRandom_Complete.fuzz test/fuzz/Tss2_Sys_StirRandom_Prepare.fuzz test/fuzz/Tss2_Sys_TestParms_Complete.fuzz test/fuzz/Tss2_Sys_TestParms_Prepare.fuzz test/fuzz/Tss2_Sys_Unseal_Complete.fuzz test/fuzz/Tss2_Sys_Unseal_Prepare.fuzz test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete.fuzz test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz test/fuzz/Tss2_Sys_VerifySignature_Complete.fuzz test/fuzz/Tss2_Sys_VerifySignature_Prepare.fuzz test/fuzz/Tss2_Sys_ZGen_2Phase_Complete.fuzz test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare.fuzz
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ACT_SetTimeout_Complete
++ cp -v test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete.fuzz /out/Tss2_Sys_ACT_SetTimeout_Complete
+'test/fuzz/Tss2_Sys_ACT_SetTimeout_Complete.fuzz' -> '/out/Tss2_Sys_ACT_SetTimeout_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ACT_SetTimeout_Prepare
++ cp -v test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare.fuzz /out/Tss2_Sys_ACT_SetTimeout_Prepare
+'test/fuzz/Tss2_Sys_ACT_SetTimeout_Prepare.fuzz' -> '/out/Tss2_Sys_ACT_SetTimeout_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_AC_GetCapability_Complete.fuzz .fuzz
+++ echo Tss2_Sys_AC_GetCapability_Complete
++ cp -v test/fuzz/Tss2_Sys_AC_GetCapability_Complete.fuzz /out/Tss2_Sys_AC_GetCapability_Complete
+'test/fuzz/Tss2_Sys_AC_GetCapability_Complete.fuzz' -> '/out/Tss2_Sys_AC_GetCapability_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_AC_GetCapability_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_AC_GetCapability_Prepare
++ cp -v test/fuzz/Tss2_Sys_AC_GetCapability_Prepare.fuzz /out/Tss2_Sys_AC_GetCapability_Prepare
+'test/fuzz/Tss2_Sys_AC_GetCapability_Prepare.fuzz' -> '/out/Tss2_Sys_AC_GetCapability_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_AC_Send_Complete.fuzz .fuzz
+++ echo Tss2_Sys_AC_Send_Complete
++ cp -v test/fuzz/Tss2_Sys_AC_Send_Complete.fuzz /out/Tss2_Sys_AC_Send_Complete
+'test/fuzz/Tss2_Sys_AC_Send_Complete.fuzz' -> '/out/Tss2_Sys_AC_Send_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_AC_Send_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_AC_Send_Prepare
++ cp -v test/fuzz/Tss2_Sys_AC_Send_Prepare.fuzz /out/Tss2_Sys_AC_Send_Prepare
+'test/fuzz/Tss2_Sys_AC_Send_Prepare.fuzz' -> '/out/Tss2_Sys_AC_Send_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ActivateCredential_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ActivateCredential_Complete
++ cp -v test/fuzz/Tss2_Sys_ActivateCredential_Complete.fuzz /out/Tss2_Sys_ActivateCredential_Complete
+'test/fuzz/Tss2_Sys_ActivateCredential_Complete.fuzz' -> '/out/Tss2_Sys_ActivateCredential_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ActivateCredential_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ActivateCredential_Prepare
++ cp -v test/fuzz/Tss2_Sys_ActivateCredential_Prepare.fuzz /out/Tss2_Sys_ActivateCredential_Prepare
+'test/fuzz/Tss2_Sys_ActivateCredential_Prepare.fuzz' -> '/out/Tss2_Sys_ActivateCredential_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CertifyCreation_Complete.fuzz .fuzz
+++ echo Tss2_Sys_CertifyCreation_Complete
++ cp -v test/fuzz/Tss2_Sys_CertifyCreation_Complete.fuzz /out/Tss2_Sys_CertifyCreation_Complete
+'test/fuzz/Tss2_Sys_CertifyCreation_Complete.fuzz' -> '/out/Tss2_Sys_CertifyCreation_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CertifyCreation_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_CertifyCreation_Prepare
++ cp -v test/fuzz/Tss2_Sys_CertifyCreation_Prepare.fuzz /out/Tss2_Sys_CertifyCreation_Prepare
+'test/fuzz/Tss2_Sys_CertifyCreation_Prepare.fuzz' -> '/out/Tss2_Sys_CertifyCreation_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CertifyX509_Complete.fuzz .fuzz
+++ echo Tss2_Sys_CertifyX509_Complete
++ cp -v test/fuzz/Tss2_Sys_CertifyX509_Complete.fuzz /out/Tss2_Sys_CertifyX509_Complete
+'test/fuzz/Tss2_Sys_CertifyX509_Complete.fuzz' -> '/out/Tss2_Sys_CertifyX509_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CertifyX509_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_CertifyX509_Prepare
++ cp -v test/fuzz/Tss2_Sys_CertifyX509_Prepare.fuzz /out/Tss2_Sys_CertifyX509_Prepare
+'test/fuzz/Tss2_Sys_CertifyX509_Prepare.fuzz' -> '/out/Tss2_Sys_CertifyX509_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Certify_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Certify_Complete
++ cp -v test/fuzz/Tss2_Sys_Certify_Complete.fuzz /out/Tss2_Sys_Certify_Complete
+'test/fuzz/Tss2_Sys_Certify_Complete.fuzz' -> '/out/Tss2_Sys_Certify_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Certify_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Certify_Prepare
++ cp -v test/fuzz/Tss2_Sys_Certify_Prepare.fuzz /out/Tss2_Sys_Certify_Prepare
+'test/fuzz/Tss2_Sys_Certify_Prepare.fuzz' -> '/out/Tss2_Sys_Certify_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ChangeEPS_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ChangeEPS_Complete
++ cp -v test/fuzz/Tss2_Sys_ChangeEPS_Complete.fuzz /out/Tss2_Sys_ChangeEPS_Complete
+'test/fuzz/Tss2_Sys_ChangeEPS_Complete.fuzz' -> '/out/Tss2_Sys_ChangeEPS_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ChangeEPS_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ChangeEPS_Prepare
++ cp -v test/fuzz/Tss2_Sys_ChangeEPS_Prepare.fuzz /out/Tss2_Sys_ChangeEPS_Prepare
+'test/fuzz/Tss2_Sys_ChangeEPS_Prepare.fuzz' -> '/out/Tss2_Sys_ChangeEPS_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ChangePPS_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ChangePPS_Complete
++ cp -v test/fuzz/Tss2_Sys_ChangePPS_Complete.fuzz /out/Tss2_Sys_ChangePPS_Complete
+'test/fuzz/Tss2_Sys_ChangePPS_Complete.fuzz' -> '/out/Tss2_Sys_ChangePPS_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ChangePPS_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ChangePPS_Prepare
++ cp -v test/fuzz/Tss2_Sys_ChangePPS_Prepare.fuzz /out/Tss2_Sys_ChangePPS_Prepare
+'test/fuzz/Tss2_Sys_ChangePPS_Prepare.fuzz' -> '/out/Tss2_Sys_ChangePPS_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClearControl_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ClearControl_Complete
++ cp -v test/fuzz/Tss2_Sys_ClearControl_Complete.fuzz /out/Tss2_Sys_ClearControl_Complete
+'test/fuzz/Tss2_Sys_ClearControl_Complete.fuzz' -> '/out/Tss2_Sys_ClearControl_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClearControl_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ClearControl_Prepare
++ cp -v test/fuzz/Tss2_Sys_ClearControl_Prepare.fuzz /out/Tss2_Sys_ClearControl_Prepare
+'test/fuzz/Tss2_Sys_ClearControl_Prepare.fuzz' -> '/out/Tss2_Sys_ClearControl_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Clear_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Clear_Complete
++ cp -v test/fuzz/Tss2_Sys_Clear_Complete.fuzz /out/Tss2_Sys_Clear_Complete
+'test/fuzz/Tss2_Sys_Clear_Complete.fuzz' -> '/out/Tss2_Sys_Clear_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Clear_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Clear_Prepare
++ cp -v test/fuzz/Tss2_Sys_Clear_Prepare.fuzz /out/Tss2_Sys_Clear_Prepare
+'test/fuzz/Tss2_Sys_Clear_Prepare.fuzz' -> '/out/Tss2_Sys_Clear_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClockRateAdjust_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ClockRateAdjust_Complete
++ cp -v test/fuzz/Tss2_Sys_ClockRateAdjust_Complete.fuzz /out/Tss2_Sys_ClockRateAdjust_Complete
+'test/fuzz/Tss2_Sys_ClockRateAdjust_Complete.fuzz' -> '/out/Tss2_Sys_ClockRateAdjust_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ClockRateAdjust_Prepare
++ cp -v test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare.fuzz /out/Tss2_Sys_ClockRateAdjust_Prepare
+'test/fuzz/Tss2_Sys_ClockRateAdjust_Prepare.fuzz' -> '/out/Tss2_Sys_ClockRateAdjust_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClockSet_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ClockSet_Complete
++ cp -v test/fuzz/Tss2_Sys_ClockSet_Complete.fuzz /out/Tss2_Sys_ClockSet_Complete
+'test/fuzz/Tss2_Sys_ClockSet_Complete.fuzz' -> '/out/Tss2_Sys_ClockSet_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ClockSet_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ClockSet_Prepare
++ cp -v test/fuzz/Tss2_Sys_ClockSet_Prepare.fuzz /out/Tss2_Sys_ClockSet_Prepare
+'test/fuzz/Tss2_Sys_ClockSet_Prepare.fuzz' -> '/out/Tss2_Sys_ClockSet_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Commit_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Commit_Complete
++ cp -v test/fuzz/Tss2_Sys_Commit_Complete.fuzz /out/Tss2_Sys_Commit_Complete
+'test/fuzz/Tss2_Sys_Commit_Complete.fuzz' -> '/out/Tss2_Sys_Commit_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Commit_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Commit_Prepare
++ cp -v test/fuzz/Tss2_Sys_Commit_Prepare.fuzz /out/Tss2_Sys_Commit_Prepare
+'test/fuzz/Tss2_Sys_Commit_Prepare.fuzz' -> '/out/Tss2_Sys_Commit_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ContextLoad_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ContextLoad_Complete
++ cp -v test/fuzz/Tss2_Sys_ContextLoad_Complete.fuzz /out/Tss2_Sys_ContextLoad_Complete
+'test/fuzz/Tss2_Sys_ContextLoad_Complete.fuzz' -> '/out/Tss2_Sys_ContextLoad_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ContextLoad_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ContextLoad_Prepare
++ cp -v test/fuzz/Tss2_Sys_ContextLoad_Prepare.fuzz /out/Tss2_Sys_ContextLoad_Prepare
+'test/fuzz/Tss2_Sys_ContextLoad_Prepare.fuzz' -> '/out/Tss2_Sys_ContextLoad_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ContextSave_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ContextSave_Complete
++ cp -v test/fuzz/Tss2_Sys_ContextSave_Complete.fuzz /out/Tss2_Sys_ContextSave_Complete
+'test/fuzz/Tss2_Sys_ContextSave_Complete.fuzz' -> '/out/Tss2_Sys_ContextSave_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ContextSave_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ContextSave_Prepare
++ cp -v test/fuzz/Tss2_Sys_ContextSave_Prepare.fuzz /out/Tss2_Sys_ContextSave_Prepare
+'test/fuzz/Tss2_Sys_ContextSave_Prepare.fuzz' -> '/out/Tss2_Sys_ContextSave_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CreateLoaded_Complete.fuzz .fuzz
+++ echo Tss2_Sys_CreateLoaded_Complete
++ cp -v test/fuzz/Tss2_Sys_CreateLoaded_Complete.fuzz /out/Tss2_Sys_CreateLoaded_Complete
+'test/fuzz/Tss2_Sys_CreateLoaded_Complete.fuzz' -> '/out/Tss2_Sys_CreateLoaded_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CreateLoaded_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_CreateLoaded_Prepare
++ cp -v test/fuzz/Tss2_Sys_CreateLoaded_Prepare.fuzz /out/Tss2_Sys_CreateLoaded_Prepare
+'test/fuzz/Tss2_Sys_CreateLoaded_Prepare.fuzz' -> '/out/Tss2_Sys_CreateLoaded_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CreatePrimary_Complete.fuzz .fuzz
+++ echo Tss2_Sys_CreatePrimary_Complete
++ cp -v test/fuzz/Tss2_Sys_CreatePrimary_Complete.fuzz /out/Tss2_Sys_CreatePrimary_Complete
+'test/fuzz/Tss2_Sys_CreatePrimary_Complete.fuzz' -> '/out/Tss2_Sys_CreatePrimary_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_CreatePrimary_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_CreatePrimary_Prepare
++ cp -v test/fuzz/Tss2_Sys_CreatePrimary_Prepare.fuzz /out/Tss2_Sys_CreatePrimary_Prepare
+'test/fuzz/Tss2_Sys_CreatePrimary_Prepare.fuzz' -> '/out/Tss2_Sys_CreatePrimary_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Create_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Create_Complete
++ cp -v test/fuzz/Tss2_Sys_Create_Complete.fuzz /out/Tss2_Sys_Create_Complete
+'test/fuzz/Tss2_Sys_Create_Complete.fuzz' -> '/out/Tss2_Sys_Create_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Create_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Create_Prepare
++ cp -v test/fuzz/Tss2_Sys_Create_Prepare.fuzz /out/Tss2_Sys_Create_Prepare
+'test/fuzz/Tss2_Sys_Create_Prepare.fuzz' -> '/out/Tss2_Sys_Create_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz .fuzz
+++ echo Tss2_Sys_DictionaryAttackLockReset_Complete
++ cp -v test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz /out/Tss2_Sys_DictionaryAttackLockReset_Complete
+'test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Complete.fuzz' -> '/out/Tss2_Sys_DictionaryAttackLockReset_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_DictionaryAttackLockReset_Prepare
++ cp -v test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz /out/Tss2_Sys_DictionaryAttackLockReset_Prepare
+'test/fuzz/Tss2_Sys_DictionaryAttackLockReset_Prepare.fuzz' -> '/out/Tss2_Sys_DictionaryAttackLockReset_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete.fuzz .fuzz
+++ echo Tss2_Sys_DictionaryAttackParameters_Complete
++ cp -v test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete.fuzz /out/Tss2_Sys_DictionaryAttackParameters_Complete
+'test/fuzz/Tss2_Sys_DictionaryAttackParameters_Complete.fuzz' -> '/out/Tss2_Sys_DictionaryAttackParameters_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_DictionaryAttackParameters_Prepare
++ cp -v test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz /out/Tss2_Sys_DictionaryAttackParameters_Prepare
+'test/fuzz/Tss2_Sys_DictionaryAttackParameters_Prepare.fuzz' -> '/out/Tss2_Sys_DictionaryAttackParameters_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Duplicate_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Duplicate_Complete
++ cp -v test/fuzz/Tss2_Sys_Duplicate_Complete.fuzz /out/Tss2_Sys_Duplicate_Complete
+'test/fuzz/Tss2_Sys_Duplicate_Complete.fuzz' -> '/out/Tss2_Sys_Duplicate_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Duplicate_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Duplicate_Prepare
++ cp -v test/fuzz/Tss2_Sys_Duplicate_Prepare.fuzz /out/Tss2_Sys_Duplicate_Prepare
+'test/fuzz/Tss2_Sys_Duplicate_Prepare.fuzz' -> '/out/Tss2_Sys_Duplicate_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECC_Parameters_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ECC_Parameters_Complete
++ cp -v test/fuzz/Tss2_Sys_ECC_Parameters_Complete.fuzz /out/Tss2_Sys_ECC_Parameters_Complete
+'test/fuzz/Tss2_Sys_ECC_Parameters_Complete.fuzz' -> '/out/Tss2_Sys_ECC_Parameters_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECC_Parameters_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ECC_Parameters_Prepare
++ cp -v test/fuzz/Tss2_Sys_ECC_Parameters_Prepare.fuzz /out/Tss2_Sys_ECC_Parameters_Prepare
+'test/fuzz/Tss2_Sys_ECC_Parameters_Prepare.fuzz' -> '/out/Tss2_Sys_ECC_Parameters_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ECDH_KeyGen_Complete
++ cp -v test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete.fuzz /out/Tss2_Sys_ECDH_KeyGen_Complete
+'test/fuzz/Tss2_Sys_ECDH_KeyGen_Complete.fuzz' -> '/out/Tss2_Sys_ECDH_KeyGen_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ECDH_KeyGen_Prepare
++ cp -v test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare.fuzz /out/Tss2_Sys_ECDH_KeyGen_Prepare
+'test/fuzz/Tss2_Sys_ECDH_KeyGen_Prepare.fuzz' -> '/out/Tss2_Sys_ECDH_KeyGen_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECDH_ZGen_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ECDH_ZGen_Complete
++ cp -v test/fuzz/Tss2_Sys_ECDH_ZGen_Complete.fuzz /out/Tss2_Sys_ECDH_ZGen_Complete
+'test/fuzz/Tss2_Sys_ECDH_ZGen_Complete.fuzz' -> '/out/Tss2_Sys_ECDH_ZGen_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ECDH_ZGen_Prepare
++ cp -v test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare.fuzz /out/Tss2_Sys_ECDH_ZGen_Prepare
+'test/fuzz/Tss2_Sys_ECDH_ZGen_Prepare.fuzz' -> '/out/Tss2_Sys_ECDH_ZGen_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EC_Ephemeral_Complete.fuzz .fuzz
+++ echo Tss2_Sys_EC_Ephemeral_Complete
++ cp -v test/fuzz/Tss2_Sys_EC_Ephemeral_Complete.fuzz /out/Tss2_Sys_EC_Ephemeral_Complete
+'test/fuzz/Tss2_Sys_EC_Ephemeral_Complete.fuzz' -> '/out/Tss2_Sys_EC_Ephemeral_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_EC_Ephemeral_Prepare
++ cp -v test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare.fuzz /out/Tss2_Sys_EC_Ephemeral_Prepare
+'test/fuzz/Tss2_Sys_EC_Ephemeral_Prepare.fuzz' -> '/out/Tss2_Sys_EC_Ephemeral_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete.fuzz .fuzz
+++ echo Tss2_Sys_EncryptDecrypt2_Complete
++ cp -v test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete.fuzz /out/Tss2_Sys_EncryptDecrypt2_Complete
+'test/fuzz/Tss2_Sys_EncryptDecrypt2_Complete.fuzz' -> '/out/Tss2_Sys_EncryptDecrypt2_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_EncryptDecrypt2_Prepare
++ cp -v test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare.fuzz /out/Tss2_Sys_EncryptDecrypt2_Prepare
+'test/fuzz/Tss2_Sys_EncryptDecrypt2_Prepare.fuzz' -> '/out/Tss2_Sys_EncryptDecrypt2_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EncryptDecrypt_Complete.fuzz .fuzz
+++ echo Tss2_Sys_EncryptDecrypt_Complete
++ cp -v test/fuzz/Tss2_Sys_EncryptDecrypt_Complete.fuzz /out/Tss2_Sys_EncryptDecrypt_Complete
+'test/fuzz/Tss2_Sys_EncryptDecrypt_Complete.fuzz' -> '/out/Tss2_Sys_EncryptDecrypt_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_EncryptDecrypt_Prepare
++ cp -v test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare.fuzz /out/Tss2_Sys_EncryptDecrypt_Prepare
+'test/fuzz/Tss2_Sys_EncryptDecrypt_Prepare.fuzz' -> '/out/Tss2_Sys_EncryptDecrypt_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EventSequenceComplete_Complete.fuzz .fuzz
+++ echo Tss2_Sys_EventSequenceComplete_Complete
++ cp -v test/fuzz/Tss2_Sys_EventSequenceComplete_Complete.fuzz /out/Tss2_Sys_EventSequenceComplete_Complete
+'test/fuzz/Tss2_Sys_EventSequenceComplete_Complete.fuzz' -> '/out/Tss2_Sys_EventSequenceComplete_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_EventSequenceComplete_Prepare
++ cp -v test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare.fuzz /out/Tss2_Sys_EventSequenceComplete_Prepare
+'test/fuzz/Tss2_Sys_EventSequenceComplete_Prepare.fuzz' -> '/out/Tss2_Sys_EventSequenceComplete_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EvictControl_Complete.fuzz .fuzz
+++ echo Tss2_Sys_EvictControl_Complete
++ cp -v test/fuzz/Tss2_Sys_EvictControl_Complete.fuzz /out/Tss2_Sys_EvictControl_Complete
+'test/fuzz/Tss2_Sys_EvictControl_Complete.fuzz' -> '/out/Tss2_Sys_EvictControl_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_EvictControl_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_EvictControl_Prepare
++ cp -v test/fuzz/Tss2_Sys_EvictControl_Prepare.fuzz /out/Tss2_Sys_EvictControl_Prepare
+'test/fuzz/Tss2_Sys_EvictControl_Prepare.fuzz' -> '/out/Tss2_Sys_EvictControl_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FieldUpgradeData_Complete.fuzz .fuzz
+++ echo Tss2_Sys_FieldUpgradeData_Complete
++ cp -v test/fuzz/Tss2_Sys_FieldUpgradeData_Complete.fuzz /out/Tss2_Sys_FieldUpgradeData_Complete
+'test/fuzz/Tss2_Sys_FieldUpgradeData_Complete.fuzz' -> '/out/Tss2_Sys_FieldUpgradeData_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_FieldUpgradeData_Prepare
++ cp -v test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare.fuzz /out/Tss2_Sys_FieldUpgradeData_Prepare
+'test/fuzz/Tss2_Sys_FieldUpgradeData_Prepare.fuzz' -> '/out/Tss2_Sys_FieldUpgradeData_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete.fuzz .fuzz
+++ echo Tss2_Sys_FieldUpgradeStart_Complete
++ cp -v test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete.fuzz /out/Tss2_Sys_FieldUpgradeStart_Complete
+'test/fuzz/Tss2_Sys_FieldUpgradeStart_Complete.fuzz' -> '/out/Tss2_Sys_FieldUpgradeStart_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_FieldUpgradeStart_Prepare
++ cp -v test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare.fuzz /out/Tss2_Sys_FieldUpgradeStart_Prepare
+'test/fuzz/Tss2_Sys_FieldUpgradeStart_Prepare.fuzz' -> '/out/Tss2_Sys_FieldUpgradeStart_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FirmwareRead_Complete.fuzz .fuzz
+++ echo Tss2_Sys_FirmwareRead_Complete
++ cp -v test/fuzz/Tss2_Sys_FirmwareRead_Complete.fuzz /out/Tss2_Sys_FirmwareRead_Complete
+'test/fuzz/Tss2_Sys_FirmwareRead_Complete.fuzz' -> '/out/Tss2_Sys_FirmwareRead_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FirmwareRead_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_FirmwareRead_Prepare
++ cp -v test/fuzz/Tss2_Sys_FirmwareRead_Prepare.fuzz /out/Tss2_Sys_FirmwareRead_Prepare
+'test/fuzz/Tss2_Sys_FirmwareRead_Prepare.fuzz' -> '/out/Tss2_Sys_FirmwareRead_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FlushContext_Complete.fuzz .fuzz
+++ echo Tss2_Sys_FlushContext_Complete
++ cp -v test/fuzz/Tss2_Sys_FlushContext_Complete.fuzz /out/Tss2_Sys_FlushContext_Complete
+'test/fuzz/Tss2_Sys_FlushContext_Complete.fuzz' -> '/out/Tss2_Sys_FlushContext_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_FlushContext_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_FlushContext_Prepare
++ cp -v test/fuzz/Tss2_Sys_FlushContext_Prepare.fuzz /out/Tss2_Sys_FlushContext_Prepare
+'test/fuzz/Tss2_Sys_FlushContext_Prepare.fuzz' -> '/out/Tss2_Sys_FlushContext_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetCapability_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetCapability_Complete
++ cp -v test/fuzz/Tss2_Sys_GetCapability_Complete.fuzz /out/Tss2_Sys_GetCapability_Complete
+'test/fuzz/Tss2_Sys_GetCapability_Complete.fuzz' -> '/out/Tss2_Sys_GetCapability_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetCapability_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_GetCapability_Prepare
++ cp -v test/fuzz/Tss2_Sys_GetCapability_Prepare.fuzz /out/Tss2_Sys_GetCapability_Prepare
+'test/fuzz/Tss2_Sys_GetCapability_Prepare.fuzz' -> '/out/Tss2_Sys_GetCapability_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetCommandAuditDigest_Complete
++ cp -v test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete.fuzz /out/Tss2_Sys_GetCommandAuditDigest_Complete
+'test/fuzz/Tss2_Sys_GetCommandAuditDigest_Complete.fuzz' -> '/out/Tss2_Sys_GetCommandAuditDigest_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_GetCommandAuditDigest_Prepare
++ cp -v test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz /out/Tss2_Sys_GetCommandAuditDigest_Prepare
+'test/fuzz/Tss2_Sys_GetCommandAuditDigest_Prepare.fuzz' -> '/out/Tss2_Sys_GetCommandAuditDigest_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetRandom_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetRandom_Complete
++ cp -v test/fuzz/Tss2_Sys_GetRandom_Complete.fuzz /out/Tss2_Sys_GetRandom_Complete
+'test/fuzz/Tss2_Sys_GetRandom_Complete.fuzz' -> '/out/Tss2_Sys_GetRandom_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetRandom_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_GetRandom_Prepare
++ cp -v test/fuzz/Tss2_Sys_GetRandom_Prepare.fuzz /out/Tss2_Sys_GetRandom_Prepare
+'test/fuzz/Tss2_Sys_GetRandom_Prepare.fuzz' -> '/out/Tss2_Sys_GetRandom_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetSessionAuditDigest_Complete
++ cp -v test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete.fuzz /out/Tss2_Sys_GetSessionAuditDigest_Complete
+'test/fuzz/Tss2_Sys_GetSessionAuditDigest_Complete.fuzz' -> '/out/Tss2_Sys_GetSessionAuditDigest_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_GetSessionAuditDigest_Prepare
++ cp -v test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz /out/Tss2_Sys_GetSessionAuditDigest_Prepare
+'test/fuzz/Tss2_Sys_GetSessionAuditDigest_Prepare.fuzz' -> '/out/Tss2_Sys_GetSessionAuditDigest_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetTestResult_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetTestResult_Complete
++ cp -v test/fuzz/Tss2_Sys_GetTestResult_Complete.fuzz /out/Tss2_Sys_GetTestResult_Complete
+'test/fuzz/Tss2_Sys_GetTestResult_Complete.fuzz' -> '/out/Tss2_Sys_GetTestResult_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetTime_Complete.fuzz .fuzz
+++ echo Tss2_Sys_GetTime_Complete
++ cp -v test/fuzz/Tss2_Sys_GetTime_Complete.fuzz /out/Tss2_Sys_GetTime_Complete
+'test/fuzz/Tss2_Sys_GetTime_Complete.fuzz' -> '/out/Tss2_Sys_GetTime_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_GetTime_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_GetTime_Prepare
++ cp -v test/fuzz/Tss2_Sys_GetTime_Prepare.fuzz /out/Tss2_Sys_GetTime_Prepare
+'test/fuzz/Tss2_Sys_GetTime_Prepare.fuzz' -> '/out/Tss2_Sys_GetTime_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HMAC_Complete.fuzz .fuzz
+++ echo Tss2_Sys_HMAC_Complete
++ cp -v test/fuzz/Tss2_Sys_HMAC_Complete.fuzz /out/Tss2_Sys_HMAC_Complete
+'test/fuzz/Tss2_Sys_HMAC_Complete.fuzz' -> '/out/Tss2_Sys_HMAC_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HMAC_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_HMAC_Prepare
++ cp -v test/fuzz/Tss2_Sys_HMAC_Prepare.fuzz /out/Tss2_Sys_HMAC_Prepare
+'test/fuzz/Tss2_Sys_HMAC_Prepare.fuzz' -> '/out/Tss2_Sys_HMAC_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HMAC_Start_Complete.fuzz .fuzz
+++ echo Tss2_Sys_HMAC_Start_Complete
++ cp -v test/fuzz/Tss2_Sys_HMAC_Start_Complete.fuzz /out/Tss2_Sys_HMAC_Start_Complete
+'test/fuzz/Tss2_Sys_HMAC_Start_Complete.fuzz' -> '/out/Tss2_Sys_HMAC_Start_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HMAC_Start_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_HMAC_Start_Prepare
++ cp -v test/fuzz/Tss2_Sys_HMAC_Start_Prepare.fuzz /out/Tss2_Sys_HMAC_Start_Prepare
+'test/fuzz/Tss2_Sys_HMAC_Start_Prepare.fuzz' -> '/out/Tss2_Sys_HMAC_Start_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HashSequenceStart_Complete.fuzz .fuzz
+++ echo Tss2_Sys_HashSequenceStart_Complete
++ cp -v test/fuzz/Tss2_Sys_HashSequenceStart_Complete.fuzz /out/Tss2_Sys_HashSequenceStart_Complete
+'test/fuzz/Tss2_Sys_HashSequenceStart_Complete.fuzz' -> '/out/Tss2_Sys_HashSequenceStart_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HashSequenceStart_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_HashSequenceStart_Prepare
++ cp -v test/fuzz/Tss2_Sys_HashSequenceStart_Prepare.fuzz /out/Tss2_Sys_HashSequenceStart_Prepare
+'test/fuzz/Tss2_Sys_HashSequenceStart_Prepare.fuzz' -> '/out/Tss2_Sys_HashSequenceStart_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Hash_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Hash_Complete
++ cp -v test/fuzz/Tss2_Sys_Hash_Complete.fuzz /out/Tss2_Sys_Hash_Complete
+'test/fuzz/Tss2_Sys_Hash_Complete.fuzz' -> '/out/Tss2_Sys_Hash_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Hash_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Hash_Prepare
++ cp -v test/fuzz/Tss2_Sys_Hash_Prepare.fuzz /out/Tss2_Sys_Hash_Prepare
+'test/fuzz/Tss2_Sys_Hash_Prepare.fuzz' -> '/out/Tss2_Sys_Hash_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete.fuzz .fuzz
+++ echo Tss2_Sys_HierarchyChangeAuth_Complete
++ cp -v test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete.fuzz /out/Tss2_Sys_HierarchyChangeAuth_Complete
+'test/fuzz/Tss2_Sys_HierarchyChangeAuth_Complete.fuzz' -> '/out/Tss2_Sys_HierarchyChangeAuth_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_HierarchyChangeAuth_Prepare
++ cp -v test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz /out/Tss2_Sys_HierarchyChangeAuth_Prepare
+'test/fuzz/Tss2_Sys_HierarchyChangeAuth_Prepare.fuzz' -> '/out/Tss2_Sys_HierarchyChangeAuth_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HierarchyControl_Complete.fuzz .fuzz
+++ echo Tss2_Sys_HierarchyControl_Complete
++ cp -v test/fuzz/Tss2_Sys_HierarchyControl_Complete.fuzz /out/Tss2_Sys_HierarchyControl_Complete
+'test/fuzz/Tss2_Sys_HierarchyControl_Complete.fuzz' -> '/out/Tss2_Sys_HierarchyControl_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_HierarchyControl_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_HierarchyControl_Prepare
++ cp -v test/fuzz/Tss2_Sys_HierarchyControl_Prepare.fuzz /out/Tss2_Sys_HierarchyControl_Prepare
+'test/fuzz/Tss2_Sys_HierarchyControl_Prepare.fuzz' -> '/out/Tss2_Sys_HierarchyControl_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Import_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Import_Complete
++ cp -v test/fuzz/Tss2_Sys_Import_Complete.fuzz /out/Tss2_Sys_Import_Complete
+'test/fuzz/Tss2_Sys_Import_Complete.fuzz' -> '/out/Tss2_Sys_Import_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Import_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Import_Prepare
++ cp -v test/fuzz/Tss2_Sys_Import_Prepare.fuzz /out/Tss2_Sys_Import_Prepare
+'test/fuzz/Tss2_Sys_Import_Prepare.fuzz' -> '/out/Tss2_Sys_Import_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete.fuzz .fuzz
+++ echo Tss2_Sys_IncrementalSelfTest_Complete
++ cp -v test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete.fuzz /out/Tss2_Sys_IncrementalSelfTest_Complete
+'test/fuzz/Tss2_Sys_IncrementalSelfTest_Complete.fuzz' -> '/out/Tss2_Sys_IncrementalSelfTest_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_IncrementalSelfTest_Prepare
++ cp -v test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare.fuzz /out/Tss2_Sys_IncrementalSelfTest_Prepare
+'test/fuzz/Tss2_Sys_IncrementalSelfTest_Prepare.fuzz' -> '/out/Tss2_Sys_IncrementalSelfTest_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_LoadExternal_Complete.fuzz .fuzz
+++ echo Tss2_Sys_LoadExternal_Complete
++ cp -v test/fuzz/Tss2_Sys_LoadExternal_Complete.fuzz /out/Tss2_Sys_LoadExternal_Complete
+'test/fuzz/Tss2_Sys_LoadExternal_Complete.fuzz' -> '/out/Tss2_Sys_LoadExternal_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_LoadExternal_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_LoadExternal_Prepare
++ cp -v test/fuzz/Tss2_Sys_LoadExternal_Prepare.fuzz /out/Tss2_Sys_LoadExternal_Prepare
+'test/fuzz/Tss2_Sys_LoadExternal_Prepare.fuzz' -> '/out/Tss2_Sys_LoadExternal_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Load_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Load_Complete
++ cp -v test/fuzz/Tss2_Sys_Load_Complete.fuzz /out/Tss2_Sys_Load_Complete
+'test/fuzz/Tss2_Sys_Load_Complete.fuzz' -> '/out/Tss2_Sys_Load_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Load_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Load_Prepare
++ cp -v test/fuzz/Tss2_Sys_Load_Prepare.fuzz /out/Tss2_Sys_Load_Prepare
+'test/fuzz/Tss2_Sys_Load_Prepare.fuzz' -> '/out/Tss2_Sys_Load_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MAC_Complete.fuzz .fuzz
+++ echo Tss2_Sys_MAC_Complete
++ cp -v test/fuzz/Tss2_Sys_MAC_Complete.fuzz /out/Tss2_Sys_MAC_Complete
+'test/fuzz/Tss2_Sys_MAC_Complete.fuzz' -> '/out/Tss2_Sys_MAC_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MAC_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_MAC_Prepare
++ cp -v test/fuzz/Tss2_Sys_MAC_Prepare.fuzz /out/Tss2_Sys_MAC_Prepare
+'test/fuzz/Tss2_Sys_MAC_Prepare.fuzz' -> '/out/Tss2_Sys_MAC_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MAC_Start_Complete.fuzz .fuzz
+++ echo Tss2_Sys_MAC_Start_Complete
++ cp -v test/fuzz/Tss2_Sys_MAC_Start_Complete.fuzz /out/Tss2_Sys_MAC_Start_Complete
+'test/fuzz/Tss2_Sys_MAC_Start_Complete.fuzz' -> '/out/Tss2_Sys_MAC_Start_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MAC_Start_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_MAC_Start_Prepare
++ cp -v test/fuzz/Tss2_Sys_MAC_Start_Prepare.fuzz /out/Tss2_Sys_MAC_Start_Prepare
+'test/fuzz/Tss2_Sys_MAC_Start_Prepare.fuzz' -> '/out/Tss2_Sys_MAC_Start_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MakeCredential_Complete.fuzz .fuzz
+++ echo Tss2_Sys_MakeCredential_Complete
++ cp -v test/fuzz/Tss2_Sys_MakeCredential_Complete.fuzz /out/Tss2_Sys_MakeCredential_Complete
+'test/fuzz/Tss2_Sys_MakeCredential_Complete.fuzz' -> '/out/Tss2_Sys_MakeCredential_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_MakeCredential_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_MakeCredential_Prepare
++ cp -v test/fuzz/Tss2_Sys_MakeCredential_Prepare.fuzz /out/Tss2_Sys_MakeCredential_Prepare
+'test/fuzz/Tss2_Sys_MakeCredential_Prepare.fuzz' -> '/out/Tss2_Sys_MakeCredential_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Certify_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_Certify_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_Certify_Complete.fuzz /out/Tss2_Sys_NV_Certify_Complete
+'test/fuzz/Tss2_Sys_NV_Certify_Complete.fuzz' -> '/out/Tss2_Sys_NV_Certify_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Certify_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_Certify_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_Certify_Prepare.fuzz /out/Tss2_Sys_NV_Certify_Prepare
+'test/fuzz/Tss2_Sys_NV_Certify_Prepare.fuzz' -> '/out/Tss2_Sys_NV_Certify_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_ChangeAuth_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete.fuzz /out/Tss2_Sys_NV_ChangeAuth_Complete
+'test/fuzz/Tss2_Sys_NV_ChangeAuth_Complete.fuzz' -> '/out/Tss2_Sys_NV_ChangeAuth_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_ChangeAuth_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare.fuzz /out/Tss2_Sys_NV_ChangeAuth_Prepare
+'test/fuzz/Tss2_Sys_NV_ChangeAuth_Prepare.fuzz' -> '/out/Tss2_Sys_NV_ChangeAuth_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_DefineSpace_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_DefineSpace_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_DefineSpace_Complete.fuzz /out/Tss2_Sys_NV_DefineSpace_Complete
+'test/fuzz/Tss2_Sys_NV_DefineSpace_Complete.fuzz' -> '/out/Tss2_Sys_NV_DefineSpace_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_DefineSpace_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare.fuzz /out/Tss2_Sys_NV_DefineSpace_Prepare
+'test/fuzz/Tss2_Sys_NV_DefineSpace_Prepare.fuzz' -> '/out/Tss2_Sys_NV_DefineSpace_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Extend_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_Extend_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_Extend_Complete.fuzz /out/Tss2_Sys_NV_Extend_Complete
+'test/fuzz/Tss2_Sys_NV_Extend_Complete.fuzz' -> '/out/Tss2_Sys_NV_Extend_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Extend_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_Extend_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_Extend_Prepare.fuzz /out/Tss2_Sys_NV_Extend_Prepare
+'test/fuzz/Tss2_Sys_NV_Extend_Prepare.fuzz' -> '/out/Tss2_Sys_NV_Extend_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_GlobalWriteLock_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz /out/Tss2_Sys_NV_GlobalWriteLock_Complete
+'test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Complete.fuzz' -> '/out/Tss2_Sys_NV_GlobalWriteLock_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_GlobalWriteLock_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz /out/Tss2_Sys_NV_GlobalWriteLock_Prepare
+'test/fuzz/Tss2_Sys_NV_GlobalWriteLock_Prepare.fuzz' -> '/out/Tss2_Sys_NV_GlobalWriteLock_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Increment_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_Increment_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_Increment_Complete.fuzz /out/Tss2_Sys_NV_Increment_Complete
+'test/fuzz/Tss2_Sys_NV_Increment_Complete.fuzz' -> '/out/Tss2_Sys_NV_Increment_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Increment_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_Increment_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_Increment_Prepare.fuzz /out/Tss2_Sys_NV_Increment_Prepare
+'test/fuzz/Tss2_Sys_NV_Increment_Prepare.fuzz' -> '/out/Tss2_Sys_NV_Increment_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ReadLock_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_ReadLock_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_ReadLock_Complete.fuzz /out/Tss2_Sys_NV_ReadLock_Complete
+'test/fuzz/Tss2_Sys_NV_ReadLock_Complete.fuzz' -> '/out/Tss2_Sys_NV_ReadLock_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ReadLock_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_ReadLock_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_ReadLock_Prepare.fuzz /out/Tss2_Sys_NV_ReadLock_Prepare
+'test/fuzz/Tss2_Sys_NV_ReadLock_Prepare.fuzz' -> '/out/Tss2_Sys_NV_ReadLock_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ReadPublic_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_ReadPublic_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_ReadPublic_Complete.fuzz /out/Tss2_Sys_NV_ReadPublic_Complete
+'test/fuzz/Tss2_Sys_NV_ReadPublic_Complete.fuzz' -> '/out/Tss2_Sys_NV_ReadPublic_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_ReadPublic_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare.fuzz /out/Tss2_Sys_NV_ReadPublic_Prepare
+'test/fuzz/Tss2_Sys_NV_ReadPublic_Prepare.fuzz' -> '/out/Tss2_Sys_NV_ReadPublic_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Read_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_Read_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_Read_Complete.fuzz /out/Tss2_Sys_NV_Read_Complete
+'test/fuzz/Tss2_Sys_NV_Read_Complete.fuzz' -> '/out/Tss2_Sys_NV_Read_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Read_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_Read_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_Read_Prepare.fuzz /out/Tss2_Sys_NV_Read_Prepare
+'test/fuzz/Tss2_Sys_NV_Read_Prepare.fuzz' -> '/out/Tss2_Sys_NV_Read_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_SetBits_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_SetBits_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_SetBits_Complete.fuzz /out/Tss2_Sys_NV_SetBits_Complete
+'test/fuzz/Tss2_Sys_NV_SetBits_Complete.fuzz' -> '/out/Tss2_Sys_NV_SetBits_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_SetBits_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_SetBits_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_SetBits_Prepare.fuzz /out/Tss2_Sys_NV_SetBits_Prepare
+'test/fuzz/Tss2_Sys_NV_SetBits_Prepare.fuzz' -> '/out/Tss2_Sys_NV_SetBits_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_UndefineSpaceSpecial_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz /out/Tss2_Sys_NV_UndefineSpaceSpecial_Complete
+'test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Complete.fuzz' -> '/out/Tss2_Sys_NV_UndefineSpaceSpecial_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_UndefineSpaceSpecial_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz /out/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare
+'test/fuzz/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare.fuzz' -> '/out/Tss2_Sys_NV_UndefineSpaceSpecial_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_UndefineSpace_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete.fuzz /out/Tss2_Sys_NV_UndefineSpace_Complete
+'test/fuzz/Tss2_Sys_NV_UndefineSpace_Complete.fuzz' -> '/out/Tss2_Sys_NV_UndefineSpace_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_UndefineSpace_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare.fuzz /out/Tss2_Sys_NV_UndefineSpace_Prepare
+'test/fuzz/Tss2_Sys_NV_UndefineSpace_Prepare.fuzz' -> '/out/Tss2_Sys_NV_UndefineSpace_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_WriteLock_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_WriteLock_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_WriteLock_Complete.fuzz /out/Tss2_Sys_NV_WriteLock_Complete
+'test/fuzz/Tss2_Sys_NV_WriteLock_Complete.fuzz' -> '/out/Tss2_Sys_NV_WriteLock_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_WriteLock_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_WriteLock_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_WriteLock_Prepare.fuzz /out/Tss2_Sys_NV_WriteLock_Prepare
+'test/fuzz/Tss2_Sys_NV_WriteLock_Prepare.fuzz' -> '/out/Tss2_Sys_NV_WriteLock_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Write_Complete.fuzz .fuzz
+++ echo Tss2_Sys_NV_Write_Complete
++ cp -v test/fuzz/Tss2_Sys_NV_Write_Complete.fuzz /out/Tss2_Sys_NV_Write_Complete
+'test/fuzz/Tss2_Sys_NV_Write_Complete.fuzz' -> '/out/Tss2_Sys_NV_Write_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_NV_Write_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_NV_Write_Prepare
++ cp -v test/fuzz/Tss2_Sys_NV_Write_Prepare.fuzz /out/Tss2_Sys_NV_Write_Prepare
+'test/fuzz/Tss2_Sys_NV_Write_Prepare.fuzz' -> '/out/Tss2_Sys_NV_Write_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ObjectChangeAuth_Complete
++ cp -v test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete.fuzz /out/Tss2_Sys_ObjectChangeAuth_Complete
+'test/fuzz/Tss2_Sys_ObjectChangeAuth_Complete.fuzz' -> '/out/Tss2_Sys_ObjectChangeAuth_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ObjectChangeAuth_Prepare
++ cp -v test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare.fuzz /out/Tss2_Sys_ObjectChangeAuth_Prepare
+'test/fuzz/Tss2_Sys_ObjectChangeAuth_Prepare.fuzz' -> '/out/Tss2_Sys_ObjectChangeAuth_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Allocate_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Allocate_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_Allocate_Complete.fuzz /out/Tss2_Sys_PCR_Allocate_Complete
+'test/fuzz/Tss2_Sys_PCR_Allocate_Complete.fuzz' -> '/out/Tss2_Sys_PCR_Allocate_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Allocate_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Allocate_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_Allocate_Prepare.fuzz /out/Tss2_Sys_PCR_Allocate_Prepare
+'test/fuzz/Tss2_Sys_PCR_Allocate_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_Allocate_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Event_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Event_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_Event_Complete.fuzz /out/Tss2_Sys_PCR_Event_Complete
+'test/fuzz/Tss2_Sys_PCR_Event_Complete.fuzz' -> '/out/Tss2_Sys_PCR_Event_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Event_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Event_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_Event_Prepare.fuzz /out/Tss2_Sys_PCR_Event_Prepare
+'test/fuzz/Tss2_Sys_PCR_Event_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_Event_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Extend_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Extend_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_Extend_Complete.fuzz /out/Tss2_Sys_PCR_Extend_Complete
+'test/fuzz/Tss2_Sys_PCR_Extend_Complete.fuzz' -> '/out/Tss2_Sys_PCR_Extend_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Extend_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Extend_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_Extend_Prepare.fuzz /out/Tss2_Sys_PCR_Extend_Prepare
+'test/fuzz/Tss2_Sys_PCR_Extend_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_Extend_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Read_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Read_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_Read_Complete.fuzz /out/Tss2_Sys_PCR_Read_Complete
+'test/fuzz/Tss2_Sys_PCR_Read_Complete.fuzz' -> '/out/Tss2_Sys_PCR_Read_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Read_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Read_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_Read_Prepare.fuzz /out/Tss2_Sys_PCR_Read_Prepare
+'test/fuzz/Tss2_Sys_PCR_Read_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_Read_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Reset_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Reset_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_Reset_Complete.fuzz /out/Tss2_Sys_PCR_Reset_Complete
+'test/fuzz/Tss2_Sys_PCR_Reset_Complete.fuzz' -> '/out/Tss2_Sys_PCR_Reset_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_Reset_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_Reset_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_Reset_Prepare.fuzz /out/Tss2_Sys_PCR_Reset_Prepare
+'test/fuzz/Tss2_Sys_PCR_Reset_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_Reset_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_SetAuthPolicy_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz /out/Tss2_Sys_PCR_SetAuthPolicy_Complete
+'test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Complete.fuzz' -> '/out/Tss2_Sys_PCR_SetAuthPolicy_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_SetAuthPolicy_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz /out/Tss2_Sys_PCR_SetAuthPolicy_Prepare
+'test/fuzz/Tss2_Sys_PCR_SetAuthPolicy_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_SetAuthPolicy_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PCR_SetAuthValue_Complete
++ cp -v test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete.fuzz /out/Tss2_Sys_PCR_SetAuthValue_Complete
+'test/fuzz/Tss2_Sys_PCR_SetAuthValue_Complete.fuzz' -> '/out/Tss2_Sys_PCR_SetAuthValue_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PCR_SetAuthValue_Prepare
++ cp -v test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz /out/Tss2_Sys_PCR_SetAuthValue_Prepare
+'test/fuzz/Tss2_Sys_PCR_SetAuthValue_Prepare.fuzz' -> '/out/Tss2_Sys_PCR_SetAuthValue_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PP_Commands_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PP_Commands_Complete
++ cp -v test/fuzz/Tss2_Sys_PP_Commands_Complete.fuzz /out/Tss2_Sys_PP_Commands_Complete
+'test/fuzz/Tss2_Sys_PP_Commands_Complete.fuzz' -> '/out/Tss2_Sys_PP_Commands_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PP_Commands_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PP_Commands_Prepare
++ cp -v test/fuzz/Tss2_Sys_PP_Commands_Prepare.fuzz /out/Tss2_Sys_PP_Commands_Prepare
+'test/fuzz/Tss2_Sys_PP_Commands_Prepare.fuzz' -> '/out/Tss2_Sys_PP_Commands_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthValue_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthValue_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthValue_Complete.fuzz /out/Tss2_Sys_PolicyAuthValue_Complete
+'test/fuzz/Tss2_Sys_PolicyAuthValue_Complete.fuzz' -> '/out/Tss2_Sys_PolicyAuthValue_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthValue_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare.fuzz /out/Tss2_Sys_PolicyAuthValue_Prepare
+'test/fuzz/Tss2_Sys_PolicyAuthValue_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyAuthValue_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthorizeNV_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz /out/Tss2_Sys_PolicyAuthorizeNV_Complete
+'test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Complete.fuzz' -> '/out/Tss2_Sys_PolicyAuthorizeNV_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthorizeNV_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz /out/Tss2_Sys_PolicyAuthorizeNV_Prepare
+'test/fuzz/Tss2_Sys_PolicyAuthorizeNV_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyAuthorizeNV_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthorize_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthorize_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthorize_Complete.fuzz /out/Tss2_Sys_PolicyAuthorize_Complete
+'test/fuzz/Tss2_Sys_PolicyAuthorize_Complete.fuzz' -> '/out/Tss2_Sys_PolicyAuthorize_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyAuthorize_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare.fuzz /out/Tss2_Sys_PolicyAuthorize_Prepare
+'test/fuzz/Tss2_Sys_PolicyAuthorize_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyAuthorize_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCommandCode_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCommandCode_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyCommandCode_Complete.fuzz /out/Tss2_Sys_PolicyCommandCode_Complete
+'test/fuzz/Tss2_Sys_PolicyCommandCode_Complete.fuzz' -> '/out/Tss2_Sys_PolicyCommandCode_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCommandCode_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare.fuzz /out/Tss2_Sys_PolicyCommandCode_Prepare
+'test/fuzz/Tss2_Sys_PolicyCommandCode_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyCommandCode_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCounterTimer_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete.fuzz /out/Tss2_Sys_PolicyCounterTimer_Complete
+'test/fuzz/Tss2_Sys_PolicyCounterTimer_Complete.fuzz' -> '/out/Tss2_Sys_PolicyCounterTimer_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCounterTimer_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare.fuzz /out/Tss2_Sys_PolicyCounterTimer_Prepare
+'test/fuzz/Tss2_Sys_PolicyCounterTimer_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyCounterTimer_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCpHash_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCpHash_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyCpHash_Complete.fuzz /out/Tss2_Sys_PolicyCpHash_Complete
+'test/fuzz/Tss2_Sys_PolicyCpHash_Complete.fuzz' -> '/out/Tss2_Sys_PolicyCpHash_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyCpHash_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyCpHash_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyCpHash_Prepare.fuzz /out/Tss2_Sys_PolicyCpHash_Prepare
+'test/fuzz/Tss2_Sys_PolicyCpHash_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyCpHash_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyDuplicationSelect_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz /out/Tss2_Sys_PolicyDuplicationSelect_Complete
+'test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Complete.fuzz' -> '/out/Tss2_Sys_PolicyDuplicationSelect_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyDuplicationSelect_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz /out/Tss2_Sys_PolicyDuplicationSelect_Prepare
+'test/fuzz/Tss2_Sys_PolicyDuplicationSelect_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyDuplicationSelect_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyGetDigest_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyGetDigest_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyGetDigest_Complete.fuzz /out/Tss2_Sys_PolicyGetDigest_Complete
+'test/fuzz/Tss2_Sys_PolicyGetDigest_Complete.fuzz' -> '/out/Tss2_Sys_PolicyGetDigest_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyGetDigest_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare.fuzz /out/Tss2_Sys_PolicyGetDigest_Prepare
+'test/fuzz/Tss2_Sys_PolicyGetDigest_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyGetDigest_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyLocality_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyLocality_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyLocality_Complete.fuzz /out/Tss2_Sys_PolicyLocality_Complete
+'test/fuzz/Tss2_Sys_PolicyLocality_Complete.fuzz' -> '/out/Tss2_Sys_PolicyLocality_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyLocality_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyLocality_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyLocality_Prepare.fuzz /out/Tss2_Sys_PolicyLocality_Prepare
+'test/fuzz/Tss2_Sys_PolicyLocality_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyLocality_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNV_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNV_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyNV_Complete.fuzz /out/Tss2_Sys_PolicyNV_Complete
+'test/fuzz/Tss2_Sys_PolicyNV_Complete.fuzz' -> '/out/Tss2_Sys_PolicyNV_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNV_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNV_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyNV_Prepare.fuzz /out/Tss2_Sys_PolicyNV_Prepare
+'test/fuzz/Tss2_Sys_PolicyNV_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyNV_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNameHash_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNameHash_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyNameHash_Complete.fuzz /out/Tss2_Sys_PolicyNameHash_Complete
+'test/fuzz/Tss2_Sys_PolicyNameHash_Complete.fuzz' -> '/out/Tss2_Sys_PolicyNameHash_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNameHash_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNameHash_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyNameHash_Prepare.fuzz /out/Tss2_Sys_PolicyNameHash_Prepare
+'test/fuzz/Tss2_Sys_PolicyNameHash_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyNameHash_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNvWritten_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNvWritten_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyNvWritten_Complete.fuzz /out/Tss2_Sys_PolicyNvWritten_Complete
+'test/fuzz/Tss2_Sys_PolicyNvWritten_Complete.fuzz' -> '/out/Tss2_Sys_PolicyNvWritten_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyNvWritten_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare.fuzz /out/Tss2_Sys_PolicyNvWritten_Prepare
+'test/fuzz/Tss2_Sys_PolicyNvWritten_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyNvWritten_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyOR_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyOR_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyOR_Complete.fuzz /out/Tss2_Sys_PolicyOR_Complete
+'test/fuzz/Tss2_Sys_PolicyOR_Complete.fuzz' -> '/out/Tss2_Sys_PolicyOR_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyOR_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyOR_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyOR_Prepare.fuzz /out/Tss2_Sys_PolicyOR_Prepare
+'test/fuzz/Tss2_Sys_PolicyOR_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyOR_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPCR_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPCR_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyPCR_Complete.fuzz /out/Tss2_Sys_PolicyPCR_Complete
+'test/fuzz/Tss2_Sys_PolicyPCR_Complete.fuzz' -> '/out/Tss2_Sys_PolicyPCR_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPCR_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPCR_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyPCR_Prepare.fuzz /out/Tss2_Sys_PolicyPCR_Prepare
+'test/fuzz/Tss2_Sys_PolicyPCR_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyPCR_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPassword_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPassword_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyPassword_Complete.fuzz /out/Tss2_Sys_PolicyPassword_Complete
+'test/fuzz/Tss2_Sys_PolicyPassword_Complete.fuzz' -> '/out/Tss2_Sys_PolicyPassword_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPassword_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPassword_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyPassword_Prepare.fuzz /out/Tss2_Sys_PolicyPassword_Prepare
+'test/fuzz/Tss2_Sys_PolicyPassword_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyPassword_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPhysicalPresence_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz /out/Tss2_Sys_PolicyPhysicalPresence_Complete
+'test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Complete.fuzz' -> '/out/Tss2_Sys_PolicyPhysicalPresence_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyPhysicalPresence_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz /out/Tss2_Sys_PolicyPhysicalPresence_Prepare
+'test/fuzz/Tss2_Sys_PolicyPhysicalPresence_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyPhysicalPresence_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyRestart_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyRestart_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyRestart_Complete.fuzz /out/Tss2_Sys_PolicyRestart_Complete
+'test/fuzz/Tss2_Sys_PolicyRestart_Complete.fuzz' -> '/out/Tss2_Sys_PolicyRestart_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyRestart_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyRestart_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyRestart_Prepare.fuzz /out/Tss2_Sys_PolicyRestart_Prepare
+'test/fuzz/Tss2_Sys_PolicyRestart_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyRestart_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicySecret_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicySecret_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicySecret_Complete.fuzz /out/Tss2_Sys_PolicySecret_Complete
+'test/fuzz/Tss2_Sys_PolicySecret_Complete.fuzz' -> '/out/Tss2_Sys_PolicySecret_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicySecret_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicySecret_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicySecret_Prepare.fuzz /out/Tss2_Sys_PolicySecret_Prepare
+'test/fuzz/Tss2_Sys_PolicySecret_Prepare.fuzz' -> '/out/Tss2_Sys_PolicySecret_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicySigned_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicySigned_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicySigned_Complete.fuzz /out/Tss2_Sys_PolicySigned_Complete
+'test/fuzz/Tss2_Sys_PolicySigned_Complete.fuzz' -> '/out/Tss2_Sys_PolicySigned_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicySigned_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicySigned_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicySigned_Prepare.fuzz /out/Tss2_Sys_PolicySigned_Prepare
+'test/fuzz/Tss2_Sys_PolicySigned_Prepare.fuzz' -> '/out/Tss2_Sys_PolicySigned_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyTemplate_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyTemplate_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyTemplate_Complete.fuzz /out/Tss2_Sys_PolicyTemplate_Complete
+'test/fuzz/Tss2_Sys_PolicyTemplate_Complete.fuzz' -> '/out/Tss2_Sys_PolicyTemplate_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyTemplate_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyTemplate_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyTemplate_Prepare.fuzz /out/Tss2_Sys_PolicyTemplate_Prepare
+'test/fuzz/Tss2_Sys_PolicyTemplate_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyTemplate_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyTicket_Complete.fuzz .fuzz
+++ echo Tss2_Sys_PolicyTicket_Complete
++ cp -v test/fuzz/Tss2_Sys_PolicyTicket_Complete.fuzz /out/Tss2_Sys_PolicyTicket_Complete
+'test/fuzz/Tss2_Sys_PolicyTicket_Complete.fuzz' -> '/out/Tss2_Sys_PolicyTicket_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_PolicyTicket_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_PolicyTicket_Prepare
++ cp -v test/fuzz/Tss2_Sys_PolicyTicket_Prepare.fuzz /out/Tss2_Sys_PolicyTicket_Prepare
+'test/fuzz/Tss2_Sys_PolicyTicket_Prepare.fuzz' -> '/out/Tss2_Sys_PolicyTicket_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Policy_AC_SendSelect_Complete
++ cp -v test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz /out/Tss2_Sys_Policy_AC_SendSelect_Complete
+'test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Complete.fuzz' -> '/out/Tss2_Sys_Policy_AC_SendSelect_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Policy_AC_SendSelect_Prepare
++ cp -v test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz /out/Tss2_Sys_Policy_AC_SendSelect_Prepare
+'test/fuzz/Tss2_Sys_Policy_AC_SendSelect_Prepare.fuzz' -> '/out/Tss2_Sys_Policy_AC_SendSelect_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Quote_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Quote_Complete
++ cp -v test/fuzz/Tss2_Sys_Quote_Complete.fuzz /out/Tss2_Sys_Quote_Complete
+'test/fuzz/Tss2_Sys_Quote_Complete.fuzz' -> '/out/Tss2_Sys_Quote_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Quote_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Quote_Prepare
++ cp -v test/fuzz/Tss2_Sys_Quote_Prepare.fuzz /out/Tss2_Sys_Quote_Prepare
+'test/fuzz/Tss2_Sys_Quote_Prepare.fuzz' -> '/out/Tss2_Sys_Quote_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_RSA_Decrypt_Complete.fuzz .fuzz
+++ echo Tss2_Sys_RSA_Decrypt_Complete
++ cp -v test/fuzz/Tss2_Sys_RSA_Decrypt_Complete.fuzz /out/Tss2_Sys_RSA_Decrypt_Complete
+'test/fuzz/Tss2_Sys_RSA_Decrypt_Complete.fuzz' -> '/out/Tss2_Sys_RSA_Decrypt_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_RSA_Decrypt_Prepare
++ cp -v test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare.fuzz /out/Tss2_Sys_RSA_Decrypt_Prepare
+'test/fuzz/Tss2_Sys_RSA_Decrypt_Prepare.fuzz' -> '/out/Tss2_Sys_RSA_Decrypt_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_RSA_Encrypt_Complete.fuzz .fuzz
+++ echo Tss2_Sys_RSA_Encrypt_Complete
++ cp -v test/fuzz/Tss2_Sys_RSA_Encrypt_Complete.fuzz /out/Tss2_Sys_RSA_Encrypt_Complete
+'test/fuzz/Tss2_Sys_RSA_Encrypt_Complete.fuzz' -> '/out/Tss2_Sys_RSA_Encrypt_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_RSA_Encrypt_Prepare
++ cp -v test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare.fuzz /out/Tss2_Sys_RSA_Encrypt_Prepare
+'test/fuzz/Tss2_Sys_RSA_Encrypt_Prepare.fuzz' -> '/out/Tss2_Sys_RSA_Encrypt_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ReadClock_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ReadClock_Complete
++ cp -v test/fuzz/Tss2_Sys_ReadClock_Complete.fuzz /out/Tss2_Sys_ReadClock_Complete
+'test/fuzz/Tss2_Sys_ReadClock_Complete.fuzz' -> '/out/Tss2_Sys_ReadClock_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ReadPublic_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ReadPublic_Complete
++ cp -v test/fuzz/Tss2_Sys_ReadPublic_Complete.fuzz /out/Tss2_Sys_ReadPublic_Complete
+'test/fuzz/Tss2_Sys_ReadPublic_Complete.fuzz' -> '/out/Tss2_Sys_ReadPublic_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ReadPublic_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ReadPublic_Prepare
++ cp -v test/fuzz/Tss2_Sys_ReadPublic_Prepare.fuzz /out/Tss2_Sys_ReadPublic_Prepare
+'test/fuzz/Tss2_Sys_ReadPublic_Prepare.fuzz' -> '/out/Tss2_Sys_ReadPublic_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Rewrap_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Rewrap_Complete
++ cp -v test/fuzz/Tss2_Sys_Rewrap_Complete.fuzz /out/Tss2_Sys_Rewrap_Complete
+'test/fuzz/Tss2_Sys_Rewrap_Complete.fuzz' -> '/out/Tss2_Sys_Rewrap_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Rewrap_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Rewrap_Prepare
++ cp -v test/fuzz/Tss2_Sys_Rewrap_Prepare.fuzz /out/Tss2_Sys_Rewrap_Prepare
+'test/fuzz/Tss2_Sys_Rewrap_Prepare.fuzz' -> '/out/Tss2_Sys_Rewrap_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SelfTest_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SelfTest_Complete
++ cp -v test/fuzz/Tss2_Sys_SelfTest_Complete.fuzz /out/Tss2_Sys_SelfTest_Complete
+'test/fuzz/Tss2_Sys_SelfTest_Complete.fuzz' -> '/out/Tss2_Sys_SelfTest_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SelfTest_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SelfTest_Prepare
++ cp -v test/fuzz/Tss2_Sys_SelfTest_Prepare.fuzz /out/Tss2_Sys_SelfTest_Prepare
+'test/fuzz/Tss2_Sys_SelfTest_Prepare.fuzz' -> '/out/Tss2_Sys_SelfTest_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SequenceComplete_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SequenceComplete_Complete
++ cp -v test/fuzz/Tss2_Sys_SequenceComplete_Complete.fuzz /out/Tss2_Sys_SequenceComplete_Complete
+'test/fuzz/Tss2_Sys_SequenceComplete_Complete.fuzz' -> '/out/Tss2_Sys_SequenceComplete_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SequenceComplete_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SequenceComplete_Prepare
++ cp -v test/fuzz/Tss2_Sys_SequenceComplete_Prepare.fuzz /out/Tss2_Sys_SequenceComplete_Prepare
+'test/fuzz/Tss2_Sys_SequenceComplete_Prepare.fuzz' -> '/out/Tss2_Sys_SequenceComplete_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SequenceUpdate_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SequenceUpdate_Complete
++ cp -v test/fuzz/Tss2_Sys_SequenceUpdate_Complete.fuzz /out/Tss2_Sys_SequenceUpdate_Complete
+'test/fuzz/Tss2_Sys_SequenceUpdate_Complete.fuzz' -> '/out/Tss2_Sys_SequenceUpdate_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SequenceUpdate_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SequenceUpdate_Prepare
++ cp -v test/fuzz/Tss2_Sys_SequenceUpdate_Prepare.fuzz /out/Tss2_Sys_SequenceUpdate_Prepare
+'test/fuzz/Tss2_Sys_SequenceUpdate_Prepare.fuzz' -> '/out/Tss2_Sys_SequenceUpdate_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SetAlgorithmSet_Complete
++ cp -v test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete.fuzz /out/Tss2_Sys_SetAlgorithmSet_Complete
+'test/fuzz/Tss2_Sys_SetAlgorithmSet_Complete.fuzz' -> '/out/Tss2_Sys_SetAlgorithmSet_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SetAlgorithmSet_Prepare
++ cp -v test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare.fuzz /out/Tss2_Sys_SetAlgorithmSet_Prepare
+'test/fuzz/Tss2_Sys_SetAlgorithmSet_Prepare.fuzz' -> '/out/Tss2_Sys_SetAlgorithmSet_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SetCommandCodeAuditStatus_Complete
++ cp -v test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz /out/Tss2_Sys_SetCommandCodeAuditStatus_Complete
+'test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Complete.fuzz' -> '/out/Tss2_Sys_SetCommandCodeAuditStatus_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SetCommandCodeAuditStatus_Prepare
++ cp -v test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz /out/Tss2_Sys_SetCommandCodeAuditStatus_Prepare
+'test/fuzz/Tss2_Sys_SetCommandCodeAuditStatus_Prepare.fuzz' -> '/out/Tss2_Sys_SetCommandCodeAuditStatus_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete.fuzz .fuzz
+++ echo Tss2_Sys_SetPrimaryPolicy_Complete
++ cp -v test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete.fuzz /out/Tss2_Sys_SetPrimaryPolicy_Complete
+'test/fuzz/Tss2_Sys_SetPrimaryPolicy_Complete.fuzz' -> '/out/Tss2_Sys_SetPrimaryPolicy_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_SetPrimaryPolicy_Prepare
++ cp -v test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz /out/Tss2_Sys_SetPrimaryPolicy_Prepare
+'test/fuzz/Tss2_Sys_SetPrimaryPolicy_Prepare.fuzz' -> '/out/Tss2_Sys_SetPrimaryPolicy_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Shutdown_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Shutdown_Complete
++ cp -v test/fuzz/Tss2_Sys_Shutdown_Complete.fuzz /out/Tss2_Sys_Shutdown_Complete
+'test/fuzz/Tss2_Sys_Shutdown_Complete.fuzz' -> '/out/Tss2_Sys_Shutdown_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Shutdown_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Shutdown_Prepare
++ cp -v test/fuzz/Tss2_Sys_Shutdown_Prepare.fuzz /out/Tss2_Sys_Shutdown_Prepare
+'test/fuzz/Tss2_Sys_Shutdown_Prepare.fuzz' -> '/out/Tss2_Sys_Shutdown_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Sign_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Sign_Complete
++ cp -v test/fuzz/Tss2_Sys_Sign_Complete.fuzz /out/Tss2_Sys_Sign_Complete
+'test/fuzz/Tss2_Sys_Sign_Complete.fuzz' -> '/out/Tss2_Sys_Sign_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Sign_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Sign_Prepare
++ cp -v test/fuzz/Tss2_Sys_Sign_Prepare.fuzz /out/Tss2_Sys_Sign_Prepare
+'test/fuzz/Tss2_Sys_Sign_Prepare.fuzz' -> '/out/Tss2_Sys_Sign_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_StartAuthSession_Complete.fuzz .fuzz
+++ echo Tss2_Sys_StartAuthSession_Complete
++ cp -v test/fuzz/Tss2_Sys_StartAuthSession_Complete.fuzz /out/Tss2_Sys_StartAuthSession_Complete
+'test/fuzz/Tss2_Sys_StartAuthSession_Complete.fuzz' -> '/out/Tss2_Sys_StartAuthSession_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_StartAuthSession_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_StartAuthSession_Prepare
++ cp -v test/fuzz/Tss2_Sys_StartAuthSession_Prepare.fuzz /out/Tss2_Sys_StartAuthSession_Prepare
+'test/fuzz/Tss2_Sys_StartAuthSession_Prepare.fuzz' -> '/out/Tss2_Sys_StartAuthSession_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Startup_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Startup_Complete
++ cp -v test/fuzz/Tss2_Sys_Startup_Complete.fuzz /out/Tss2_Sys_Startup_Complete
+'test/fuzz/Tss2_Sys_Startup_Complete.fuzz' -> '/out/Tss2_Sys_Startup_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Startup_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Startup_Prepare
++ cp -v test/fuzz/Tss2_Sys_Startup_Prepare.fuzz /out/Tss2_Sys_Startup_Prepare
+'test/fuzz/Tss2_Sys_Startup_Prepare.fuzz' -> '/out/Tss2_Sys_Startup_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_StirRandom_Complete.fuzz .fuzz
+++ echo Tss2_Sys_StirRandom_Complete
++ cp -v test/fuzz/Tss2_Sys_StirRandom_Complete.fuzz /out/Tss2_Sys_StirRandom_Complete
+'test/fuzz/Tss2_Sys_StirRandom_Complete.fuzz' -> '/out/Tss2_Sys_StirRandom_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_StirRandom_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_StirRandom_Prepare
++ cp -v test/fuzz/Tss2_Sys_StirRandom_Prepare.fuzz /out/Tss2_Sys_StirRandom_Prepare
+'test/fuzz/Tss2_Sys_StirRandom_Prepare.fuzz' -> '/out/Tss2_Sys_StirRandom_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_TestParms_Complete.fuzz .fuzz
+++ echo Tss2_Sys_TestParms_Complete
++ cp -v test/fuzz/Tss2_Sys_TestParms_Complete.fuzz /out/Tss2_Sys_TestParms_Complete
+'test/fuzz/Tss2_Sys_TestParms_Complete.fuzz' -> '/out/Tss2_Sys_TestParms_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_TestParms_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_TestParms_Prepare
++ cp -v test/fuzz/Tss2_Sys_TestParms_Prepare.fuzz /out/Tss2_Sys_TestParms_Prepare
+'test/fuzz/Tss2_Sys_TestParms_Prepare.fuzz' -> '/out/Tss2_Sys_TestParms_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Unseal_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Unseal_Complete
++ cp -v test/fuzz/Tss2_Sys_Unseal_Complete.fuzz /out/Tss2_Sys_Unseal_Complete
+'test/fuzz/Tss2_Sys_Unseal_Complete.fuzz' -> '/out/Tss2_Sys_Unseal_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Unseal_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Unseal_Prepare
++ cp -v test/fuzz/Tss2_Sys_Unseal_Prepare.fuzz /out/Tss2_Sys_Unseal_Prepare
+'test/fuzz/Tss2_Sys_Unseal_Prepare.fuzz' -> '/out/Tss2_Sys_Unseal_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete.fuzz .fuzz
+++ echo Tss2_Sys_Vendor_TCG_Test_Complete
++ cp -v test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete.fuzz /out/Tss2_Sys_Vendor_TCG_Test_Complete
+'test/fuzz/Tss2_Sys_Vendor_TCG_Test_Complete.fuzz' -> '/out/Tss2_Sys_Vendor_TCG_Test_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_Vendor_TCG_Test_Prepare
++ cp -v test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz /out/Tss2_Sys_Vendor_TCG_Test_Prepare
+'test/fuzz/Tss2_Sys_Vendor_TCG_Test_Prepare.fuzz' -> '/out/Tss2_Sys_Vendor_TCG_Test_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_VerifySignature_Complete.fuzz .fuzz
+++ echo Tss2_Sys_VerifySignature_Complete
++ cp -v test/fuzz/Tss2_Sys_VerifySignature_Complete.fuzz /out/Tss2_Sys_VerifySignature_Complete
+'test/fuzz/Tss2_Sys_VerifySignature_Complete.fuzz' -> '/out/Tss2_Sys_VerifySignature_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_VerifySignature_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_VerifySignature_Prepare
++ cp -v test/fuzz/Tss2_Sys_VerifySignature_Prepare.fuzz /out/Tss2_Sys_VerifySignature_Prepare
+'test/fuzz/Tss2_Sys_VerifySignature_Prepare.fuzz' -> '/out/Tss2_Sys_VerifySignature_Prepare'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ZGen_2Phase_Complete.fuzz .fuzz
+++ echo Tss2_Sys_ZGen_2Phase_Complete
++ cp -v test/fuzz/Tss2_Sys_ZGen_2Phase_Complete.fuzz /out/Tss2_Sys_ZGen_2Phase_Complete
+'test/fuzz/Tss2_Sys_ZGen_2Phase_Complete.fuzz' -> '/out/Tss2_Sys_ZGen_2Phase_Complete'
++ for filename in $(ls test/fuzz/*.fuzz)
++++ basename test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare.fuzz .fuzz
+++ echo Tss2_Sys_ZGen_2Phase_Prepare
++ cp -v test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare.fuzz /out/Tss2_Sys_ZGen_2Phase_Prepare
+'test/fuzz/Tss2_Sys_ZGen_2Phase_Prepare.fuzz' -> '/out/Tss2_Sys_ZGen_2Phase_Prepare'
