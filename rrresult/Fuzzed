@@ -1,0 +1,38 @@
+['nginx/nginx', 'C', 140599, 'C Header', 8775, 'C++', 19] #sucecss0
+['spotify/spotify-json', 'C++', 326304, 'C Header', 1216] #success0
+['open62541/open62541', 'C', 132583, 'C Header', 13092, 'C++', 349]# sucess0
+['facebook/hermes', 'C Header', 165315, 'C++', 169549, 'C', 59298]# success0
+
+
+
+#fuzzing
+hermes, slow  (hermes) !result!!!!
+open62541 fuzz_binary_message 
+nginx
+spotify-json
+firestore firestore_fieldpath_fuzzer
+libgit2 commit_graph_fuzzer_seed_corpus
+krb5 Fuzz_chpw
+
+#build Fail
+
+blueez: 
+configure: error: ELL source is required or use --enable-external-ell
+ERROR:root:Building fuzzers failed.
+
+ostree: test file compilation failed. With cfi violation
+FAILED: gio/tests/test.gresource 
+/src/glib/build/gio/glib-compile-resources --compiler=clang --target=gio/tests/test.gresource --sourcedir=/src/glib/gio/tests --sourcedir=/src/glib/build/gio/tests --internal ../gio/tests/test.gresource.xml
+../gobject/gtype.c:2284:7: runtime error: control flow integrity check for type 'void (void *)' failed during indirect function call
+/src/glib/build/../gobject/gparam.c:150: note: g_param_spec_class_base_init defined here
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior ../gobject/gtype.c:2284:7 in 
+
+llvm:
+-- Detecting CXX compile features - done
+CMake Error at CMakeLists.txt:139 (MESSAGE):
+  libcxx isn't a known project:
+  bolt;clang;clang-tools-extra;compiler-rt;cross-project-tests;libc;libclc;lld;lldb;mlir;openmp;polly;pstl;flang.
+  Did you mean to enable it as a runtime in LLVM_ENABLE_RUNTIMES?
+#
+
+## fuzzed
