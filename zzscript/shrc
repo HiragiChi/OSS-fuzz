@@ -1,0 +1,40 @@
+#!/bin/bash
+OSS_PATH="/home/yantingchi/Desktop/Lab/indirectCall/OSS-Fuzz/oss-fuzz"
+function go() {
+    if test "$1" == proj; then
+        cd $OSS_PATH/projects/$2
+    else 
+        cd $OSS_PATH/build/out/$1
+    fi
+}
+
+function compile(){
+    programName=$1
+    python3 ${OSS_PATH}/infra/helper.py build_fuzzers $programName --engine afl 2>&1 | tee ${OSS_PATH}/zzscript/result/$programName.buildLog
+}
+
+function image() {
+    programName=$1
+    python3 ${OSS_PATH}/infra/helper.py build_image $programName 2>&1 | tee ${OSS_PATH}/zzscript/result/$programName.buildLog
+}
+
+function fuzz() {
+    projectName=$1
+    fuzzTarget=$2
+    if test "$#" -eq 4; then
+        corpusDir=$3
+        python3 ${OSS_PATH}/infra/helper.py run_fuzzer --corpus-dir=${OSS_PATH}/build/out/$projectName/$corpusDir $1 $2 —engine afl
+    else
+        python3 ${OSS_PATH}/infra/helper.py run_fuzzer $1 $2 --engine afl
+    fi
+}
+
+function corpus() {
+    projectName=$1
+    zipFile=$2
+    unzip $OSS_PATH/build/out/$1/$2.zip -d $2
+}
+
+function ssh2() {
+    ssh yanting@cs-kase.cs.umn.edu
+}
